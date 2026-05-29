@@ -35,3 +35,9 @@
 - **What:** Installed `zustand`; created [src/stores/auth.ts](src/stores/auth.ts) exporting `useAuth` with state `{ token, user: { id, name }, balance, currency }` and actions `login`, `logout`, `setBalance`.
 - **Why:** Chosen over React Context to avoid whole-tree re-renders on every balance update (balance changes on every bet). Per [docs/assessment.md](docs/assessment.md), balance is client-only — no GET endpoint exists; it is seeded by login and updated from each mutation response.
 - **How:** `persist` middleware (key `dgw-auth`) serialises `token`, `user`, `balance`, and `currency` to `localStorage` via `partialize` so the header is never blank on refresh. `logout()` resets all fields and the middleware clears the storage entry.
+
+#### Task 2.2 — `fetch` wrapper with bearer auth
+
+- **What:** Created [src/lib/api.ts](src/lib/api.ts) exporting `api` (`{ get, post, delete }` built on native `fetch`) and `ApiError { status, message }` interface with `isApiError` type guard.
+- **Why:** Centralises auth injection and error normalisation so every feature's API module gets consistent behaviour for free. The 401 interceptor enforces the single-logout rule from [docs/prd.md](docs/prd.md) without each call site needing to handle it.
+- **How:** Request interceptor reads `useAuth.getState().token` at call time (not module load) to stay current after login. Response error interceptor extracts `response.data.message` when present, falls back to `error.message`, and rejects with `ApiError`. On 401 it calls `useAuth.getState().logout()`; the router's `_authenticated` `beforeLoad` guard handles the redirect — no router import needed here (avoids circular deps).
