@@ -21,3 +21,9 @@
 - **What:** Created [.env.example](.env.example) and [.env](.env) with `VITE_API_BASE_URL=/api` and `VITE_WS_URL=`; added [src/lib/env.ts](src/lib/env.ts) exporting `env.API_BASE_URL` and `env.WS_URL`.
 - **Why:** Centralises all runtime config. The Zod schema (`z.object({ VITE_API_BASE_URL: z.string().min(1), VITE_WS_URL: z.string() })`) validates `import.meta.env` at module load time — a missing required var throws immediately at boot rather than failing silently at first use.
 - **How:** `safeParse` at module boundary; on failure a descriptive error names every missing key. `.env` is gitignored explicitly; `.env.example` is committed as the canonical config reference (copy it with `cp .env.example .env`).
+
+#### Task 1.4 — Vite dev proxy for mock API (CORS)
+
+- **What:** Added `server.proxy` to [vite.config.ts](vite.config.ts): `/api/*` requests from `:5173` are forwarded to `http://localhost:3000` with the `/api` prefix stripped.
+- **Why:** The mock API at `:3000` does not configure `cors()`, so the browser blocks cross-origin requests from `:5173` directly. The proxy makes both origins the same from the browser's perspective, eliminating the CORS problem without touching the upstream repo.
+- **How:** `rewrite: (path) => path.replace(/^\/api/, '')` strips the prefix so `/api/login` becomes `/login` on the target. In production, pointing `VITE_API_BASE_URL` at a CORS-enabled origin removes the need for a proxy entirely — no app-code changes required.
