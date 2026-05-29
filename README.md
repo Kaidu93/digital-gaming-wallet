@@ -27,3 +27,11 @@
 - **What:** Added `server.proxy` to [vite.config.ts](vite.config.ts): `/api/*` requests from `:5173` are forwarded to `http://localhost:3000` with the `/api` prefix stripped.
 - **Why:** The mock API at `:3000` does not configure `cors()`, so the browser blocks cross-origin requests from `:5173` directly. The proxy makes both origins the same from the browser's perspective, eliminating the CORS problem without touching the upstream repo.
 - **How:** `rewrite: (path) => path.replace(/^\/api/, '')` strips the prefix so `/api/login` becomes `/login` on the target. In production, pointing `VITE_API_BASE_URL` at a CORS-enabled origin removes the need for a proxy entirely — no app-code changes required.
+
+### Phase 2 — Core Infrastructure
+
+#### Task 2.1 — Auth store (Zustand)
+
+- **What:** Installed `zustand`; created [src/stores/auth.ts](src/stores/auth.ts) exporting `useAuth` with state `{ token, user: { id, name }, balance, currency }` and actions `login`, `logout`, `setBalance`.
+- **Why:** Chosen over React Context to avoid whole-tree re-renders on every balance update (balance changes on every bet). Per [docs/assessment.md](docs/assessment.md), balance is client-only — no GET endpoint exists; it is seeded by login and updated from each mutation response.
+- **How:** `persist` middleware (key `dgw-auth`) serialises `token`, `user`, `balance`, and `currency` to `localStorage` via `partialize` so the header is never blank on refresh. `logout()` resets all fields and the middleware clears the storage entry.
