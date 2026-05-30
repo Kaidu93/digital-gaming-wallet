@@ -59,3 +59,9 @@
 - **What:** Created [src/lib/format.ts](src/lib/format.ts) exporting `formatEuro(amount, locale?)` using `Intl.NumberFormat`; installed `vitest` and added a `test` script (`vitest run`) to [package.json](package.json); Vitest configured in [vitest.config.ts](vitest.config.ts); 4 unit tests in [src/lib/format.test.ts](src/lib/format.test.ts) cover positive, zero, negative, and custom-locale values.
 - **Why:** A single formatting function prevents scattered `Intl.NumberFormat` calls diverging in locale or options. Defaulting to `en-IE` gives stable test output and matches the Euro-using English convention; Phase 7 callers will pass the i18n-detected locale.
 - **How:** Vitest v4 no longer merges its types via `/// <reference types="vitest" />` into Vite's `defineConfig`. A separate [vitest.config.ts](vitest.config.ts) uses `mergeConfig` from `vitest/config` to extend the Vite config, keeping `vite.config.ts` free of test-only concerns.
+
+#### Task 2.6 — Zod-validated API client wrappers
+
+- **What:** Created [src/lib/zodFetch.ts](src/lib/zodFetch.ts) exporting `zodFetch` (`{ get, post, delete }`) and `ZodParseError`.
+- **Why:** Guarantees every API response is type-narrowed at the boundary. Without this layer, TypeScript types are assertions (`as T`) that the runtime never enforces — a mismatched field (wrong type, missing key, renamed enum value) would propagate silently until it caused a runtime crash downstream. See [docs/assessment.md](docs/assessment.md) §API contract gaps.
+- **How:** Each method calls the underlying `api` method with `unknown` as the generic, then runs `.safeParse()` on the raw response. On failure it logs the Zod issues and received payload to the console (developer visibility) and throws `ZodParseError` so the caller's error boundary or TanStack Query `onError` can surface it. On success it returns the narrowed `T`.
