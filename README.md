@@ -65,3 +65,11 @@
 - **What:** Created [src/lib/zodFetch.ts](src/lib/zodFetch.ts) exporting `zodFetch` (`{ get, post, delete }`) and `ZodParseError`.
 - **Why:** Guarantees every API response is type-narrowed at the boundary. Without this layer, TypeScript types are assertions (`as T`) that the runtime never enforces — a mismatched field (wrong type, missing key, renamed enum value) would propagate silently until it caused a runtime crash downstream. See [docs/assessment.md](docs/assessment.md) §API contract gaps.
 - **How:** Each method calls the underlying `api` method with `unknown` as the generic, then runs `.safeParse()` on the raw response. On failure it logs the Zod issues and received payload to the console (developer visibility) and throws `ZodParseError` so the caller's error boundary or TanStack Query `onError` can surface it. On success it returns the narrowed `T`.
+
+### Phase 3 — Authentication
+
+#### Task 3.1 — Auth Zod schemas + types
+
+- **What:** Created [src/features/auth/schemas.ts](src/features/auth/schemas.ts) with `loginSchema`, `registerSchema`, `loginResponseSchema`, `registerResponseSchema`, and their inferred TypeScript types (`LoginInput`, `RegisterInput`, `LoginResponse`, `RegisterResponse`).
+- **Why:** Centralises all auth-related validation shapes so every call site (`login()`, `register()`, form `.safeParse()`) shares one source of truth. Zod schemas double as runtime validators and static type definitions — no parallel interface declarations needed.
+- **How:** `registerSchema` uses `.refine()` targeting `path: ['confirmPassword']` so field errors land on the correct form field. Per [docs/assessment.md](docs/assessment.md) §11, the server has no password complexity rules, so the 8-character minimum and match check are enforced only on the frontend. `loginResponseSchema` captures `{ token, user: { id, name }, balance, currency }` — the complete login payload that seeds the auth store. `registerResponseSchema` captures only `{ id, name }` per the mock API's response shape (no token; task 3.2 chains a login call immediately after).
