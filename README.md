@@ -7,7 +7,7 @@
 #### Task 1.1 — Configure Tailwind v4 + Vite plugin
 
 - **What:** Added `@tailwindcss/vite` plugin to [vite.config.ts](vite.config.ts); added `@import "tailwindcss";` to [src/index.css](src/index.css); added a `bg-red-500` test class to [src/App.tsx](src/App.tsx).
-- **Why:** Tailwind v4 ships as a Vite-native plugin — no PostCSS config or `tailwind.config.js` required. All packages (`tailwindcss`, `@tailwindcss/vite`, `cva`, `clsx`, `tailwind-merge`) were already installed; this task wired them into the build pipeline.
+- **Why:** Tailwind v4 ships as a Vite-native plugin — no PostCSS config or `tailwind.config.js` required. All packages (`tailwindcss`, `@tailwindcss/vite`, `clsx`, `tailwind-merge`) were already installed; this task wired them into the build pipeline and added the `cn()` utility in [src/lib/utils.ts](src/lib/utils.ts) (`clsx` + `tailwind-merge` combined) for conditional class merging throughout the app.
 - **How:** The plugin is placed before `react()` in the Vite plugin array so CSS transforms run first.
 
 #### Task 1.2 — Establish folder structure
@@ -33,7 +33,7 @@
 #### Task 2.1 — Auth store (Zustand)
 
 - **What:** Installed `zustand`; created [src/stores/auth.ts](src/stores/auth.ts) exporting `useAuth` with state `{ token, user: { id, name }, balance, currency }` and actions `login`, `logout`, `setBalance`.
-- **Why:** Chosen over React Context to avoid whole-tree re-renders on every balance update (balance changes on every bet). Per [docs/assessment.md](docs/assessment.md), balance is client-only — no GET endpoint exists; it is seeded by login and updated from each mutation response.
+- **Why:** Chosen over React Context because the fetch wrapper (`src/lib/api.ts`) must call `logout()` on every 401 response — outside the React component tree. `useContext` cannot be called outside a component; Zustand's `getState()` can. Replacing Zustand here would require a workaround (event emitter, singleton ref, or threaded callback) that is more complex, not less. A secondary benefit: balance updates (which happen on every bet) only re-render components subscribed to `balance`, not the entire tree. Per [docs/assessment.md](docs/assessment.md), balance is client-only — no GET endpoint exists; it is seeded by login and updated from each mutation response.
 - **How:** `persist` middleware (key `dgw-auth`) serialises `token`, `user`, `balance`, and `currency` to `localStorage` via `partialize` so the header is never blank on refresh. `logout()` resets all fields and the middleware clears the storage entry.
 
 #### Task 2.2 — `fetch` wrapper with bearer auth
@@ -41,3 +41,9 @@
 - **What:** Created [src/lib/api.ts](src/lib/api.ts) exporting `api` (`{ get, post, delete }` built on native `fetch`) and `ApiError { status, message }` interface with `isApiError` type guard.
 - **Why:** Centralises auth injection and error normalisation so every feature's API module gets consistent behaviour for free. The 401 interceptor enforces the single-logout rule from [docs/prd.md](docs/prd.md) without each call site needing to handle it.
 - **How:** Request interceptor reads `useAuth.getState().token` at call time (not module load) to stay current after login. Response error interceptor extracts `response.data.message` when present, falls back to `error.message`, and rejects with `ApiError`. On 401 it calls `useAuth.getState().logout()`; the router's `_authenticated` `beforeLoad` guard handles the redirect — no router import needed here (avoids circular deps).
+
+#### Task 2.3 — TanStack Query client
+
+- **What:** Installed `@tanstack/react-query-devtools`; created [src/lib/queryClient.ts](src/lib/queryClient.ts) exporting a singleton `QueryClient`; wrapped the app in `QueryClientProvider` in [src/main.tsx](src/main.tsx); mounted `<ReactQueryDevtools>` behind `import.meta.env.DEV`.
+- **Why:** All server-state fetching (bets, transactions) runs through TanStack Query — caching, background revalidation, and cache invalidation after mutations. A shared singleton client is required so cache invalidation from one feature (e.g. placing a bet) reaches queries in another (e.g. the transactions list).
+- **How:** `staleTime: 30_000` avoids redundant refetches within 30 s of a successful fetch; `retry: 1` retries once on transient network errors without hammering the API; `refetchOnWindowFocus: true` keeps lists fresh after the user switches tabs.
