@@ -112,3 +112,9 @@
 - **What:** Implemented [src/components/AppShell.tsx](src/components/AppShell.tsx) with a sticky header showing the logged-in user's name, formatted balance (`formatEuro(balance)`), and a logout button.
 - **Why:** The header is the persistent balance display required by [docs/prd.md](docs/prd.md). Because `balance` is client-only state (no GET endpoint), the header must subscribe directly to the Zustand store so it reflects every mutation instantly — no query needed.
 - **How:** Each piece of header state is selected individually from `useAuth` (`user`, `balance`, `logout`) so unrelated store changes don't trigger a re-render. `logout()` clears the store and `router.navigate({ to: '/login' })` redirects immediately; the `_authenticated` `beforeLoad` guard would also catch the cleared token on any subsequent navigation.
+
+#### Task 4.2 — Transactions Zod schemas + API
+
+- **What:** Created [src/features/wallet/schemas.ts](src/features/wallet/schemas.ts) (`transactionTypeSchema`, `transactionSchema`, `transactionsResponseSchema`, `transactionFilterSchema` + inferred types) and [src/features/wallet/api.ts](src/features/wallet/api.ts) exporting `getTransactions(filters)`.
+- **Why:** The `GET /my-transactions` endpoint accepts `type`, `id`, `page`, and `limit` query params. Defining `transactionFilterSchema` means invalid filter values (e.g. `type: "prize"`) are caught before the request is made. The schema enum `['bet', 'win', 'cancel']` matches the mock API's literal values exactly — the "Prize" display label in the UI is a rendering choice (task 4.3/7.2), not a wire-format value.
+- **How:** `createdAt` uses `z.coerce.date()` because the API returns ISO strings; query params are serialised to strings via `URLSearchParams` so `page` and `limit` numbers round-trip correctly.
