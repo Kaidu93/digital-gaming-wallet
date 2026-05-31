@@ -79,3 +79,9 @@
 - **What:** Created [src/features/auth/api.ts](src/features/auth/api.ts) exporting `login(payload)` and `register(payload)`.
 - **Why:** Decouples the network call from the UI layer. Components call `login()` or `register()` and receive typed results; all Zod validation and store mutation happens inside these functions. Each function uses `zodFetch.post` to ensure the response is schema-validated before any state is written.
 - **How:** `login()` calls `zodFetch.post('/login', loginResponseSchema, payload)` then immediately calls `useAuth.getState().login(response)` to seed the auth store — so callers get the token in localStorage and the store in one step. `register()` receives an `Omit<RegisterInput, 'confirmPassword'>` (the UI strips `confirmPassword` before passing the payload to the network call, since the API does not expect that field).
+
+#### Task 3.3 — UI primitives: Input, Label, Button
+
+- **What:** Created [src/components/ui/button.tsx](src/components/ui/button.tsx), [src/components/ui/input.tsx](src/components/ui/input.tsx), [src/components/ui/label.tsx](src/components/ui/label.tsx); updated [src/components/ui/index.ts](src/components/ui/index.ts) with barrel exports.
+- **Why:** Shared primitive components prevent duplicated Tailwind class strings across forms and ensure consistent focus rings, error states, and disabled styles in one place. All auth and bet forms in Phases 3–5 consume these.
+- **How:** `Button` maps a `variant` prop (`primary | secondary | ghost | destructive`) to a static class string via a record — no `cva`, just `cn()`. `Input` uses `forwardRef` and an `error?: string` prop that renders an inline `<p role="alert">` and flips border + ring to red via `aria-invalid`. `Label` wraps `<label>` and renders a red asterisk when `required` is set.
