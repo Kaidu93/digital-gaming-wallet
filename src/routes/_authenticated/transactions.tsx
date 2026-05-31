@@ -6,6 +6,7 @@ import { getTransactions } from '@/features/wallet/api'
 import { transactionTypeSchema, type Transaction } from '@/features/wallet/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Pagination } from '@/components/ui/pagination'
 import { formatEuro } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
@@ -152,40 +153,6 @@ function ErrorState({ message }: { message: string }) {
   )
 }
 
-function Pagination({
-  page,
-  totalPages,
-  onPageChange,
-}: {
-  page: number
-  totalPages: number
-  onPageChange: (page: number) => void
-}) {
-  return (
-    <div className="flex items-center justify-center gap-3 py-4">
-      <Button
-        variant="secondary"
-        disabled={page <= 1}
-        onClick={() => onPageChange(page - 1)}
-        aria-label="Previous page"
-      >
-        &larr; Prev
-      </Button>
-      <span className="text-sm text-gray-600" aria-live="polite">
-        Page {page} of {totalPages || 1}
-      </span>
-      <Button
-        variant="secondary"
-        disabled={page >= totalPages}
-        onClick={() => onPageChange(page + 1)}
-        aria-label="Next page"
-      >
-        Next &rarr;
-      </Button>
-    </div>
-  )
-}
-
 function TransactionsPage() {
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -203,8 +170,6 @@ function TransactionsPage() {
     queryKey: ['my-transactions', search],
     queryFn: () => getTransactions(search),
   })
-
-  const totalPages = data ? Math.ceil(data.total / search.limit) : 0
 
   function handleTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const val = e.target.value
@@ -299,9 +264,10 @@ function TransactionsPage() {
           </div>
 
           <Pagination
+            total={data?.total ?? 0}
             page={search.page}
-            totalPages={totalPages}
-            onPageChange={(page) => updateSearch({ page })}
+            limit={search.limit}
+            onChange={({ page, limit }) => updateSearch({ page, limit })}
           />
         </>
       )}
