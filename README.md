@@ -104,3 +104,11 @@
 - **What:** Created [src/routes/_authenticated.tsx](src/routes/_authenticated.tsx) (pathless layout route); moved the root index placeholder to [src/routes/_authenticated/index.tsx](src/routes/_authenticated/index.tsx); created [src/components/AppShell.tsx](src/components/AppShell.tsx) as a minimal `<Outlet />` wrapper (fleshed out in task 4.1).
 - **Why:** All authenticated routes must be unreachable without a valid token. A single layout-level `beforeLoad` enforces this in one place — no per-route guard duplication. The `?redirect=` param threads the original destination through to the login page so users land where they intended after signing in.
 - **How:** `beforeLoad` reads `useAuth.getState().token` (outside the React tree, which is why Zustand was chosen over Context in task 2.1). If absent, it throws `redirect({ to: '/login', search: { redirect: location.href } })`. The root `index.tsx` was moved into `_authenticated/` because `/` is an authenticated route in this app — having both `_authenticated.tsx` and `index.tsx` at the same directory level caused a TanStack Router generator conflict.
+
+### Phase 4 — Wallet
+
+#### Task 4.1 — Balance display in the app shell
+
+- **What:** Implemented [src/components/AppShell.tsx](src/components/AppShell.tsx) with a sticky header showing the logged-in user's name, formatted balance (`formatEuro(balance)`), and a logout button.
+- **Why:** The header is the persistent balance display required by [docs/prd.md](docs/prd.md). Because `balance` is client-only state (no GET endpoint), the header must subscribe directly to the Zustand store so it reflects every mutation instantly — no query needed.
+- **How:** Each piece of header state is selected individually from `useAuth` (`user`, `balance`, `logout`) so unrelated store changes don't trigger a re-render. `logout()` clears the store and `router.navigate({ to: '/login' })` redirects immediately; the `_authenticated` `beforeLoad` guard would also catch the cleared token on any subsequent navigation.
