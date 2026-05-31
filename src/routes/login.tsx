@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
+  prefillEmail: z.string().optional(),
 });
 
 export const Route = createFileRoute('/login')({

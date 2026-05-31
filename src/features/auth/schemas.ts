@@ -18,13 +18,11 @@ export const registerSchema = z
   });
 
 export const loginResponseSchema = z.object({
-  token: z.string(),
-  user: z.object({
-    id: z.string(),
-    name: z.string(),
-  }),
+  id: z.string(),
+  name: z.string(),
   balance: z.number(),
   currency: z.string(),
+  accessToken: z.string(),
 });
 
 export const registerResponseSchema = z.object({
