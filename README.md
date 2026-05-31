@@ -85,3 +85,9 @@
 - **What:** Created [src/components/ui/button.tsx](src/components/ui/button.tsx), [src/components/ui/input.tsx](src/components/ui/input.tsx), [src/components/ui/label.tsx](src/components/ui/label.tsx); updated [src/components/ui/index.ts](src/components/ui/index.ts) with barrel exports.
 - **Why:** Shared primitive components prevent duplicated Tailwind class strings across forms and ensure consistent focus rings, error states, and disabled styles in one place. All auth and bet forms in Phases 3–5 consume these.
 - **How:** `Button` maps a `variant` prop (`primary | secondary | ghost | destructive`) to a static class string via a record — no `cva`, just `cn()`. `Input` uses `forwardRef` and an `error?: string` prop that renders an inline `<p role="alert">` and flips border + ring to red via `aria-invalid`. `Label` wraps `<label>` and renders a red asterisk when `required` is set.
+
+#### Task 3.4 — Login page
+
+- **What:** Created [src/routes/login.tsx](src/routes/login.tsx) — the `/login` route with field state, Zod validation, API call, and redirect.
+- **Why:** Entry point for authenticated users. The `beforeLoad` guard short-circuits to `/` for already-authenticated sessions so logged-in users are never shown the form. The `?redirect=` search param threads through from the `_authenticated` guard (task 3.6) to return users to their intended destination after login.
+- **How:** `loginSchema.safeParse()` runs on submit; `result.error.flatten().fieldErrors` maps directly onto per-field error state consumed by `<Input error={...} />`. The API error is shown above the form in a red alert box. `validateSearch` with a Zod schema types the `redirect` search param so `Route.useSearch()` is fully typed.
