@@ -6,6 +6,7 @@ import { getTransactions } from '@/features/wallet/api'
 import { type Bet, type BetStatus } from '@/features/bets/schemas'
 import { type Transaction } from '@/features/wallet/schemas'
 import { PlaceBetForm } from '@/features/bets/components/PlaceBetForm'
+import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { useAuth } from '@/stores/auth'
 import { formatEuro } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -84,13 +85,6 @@ function SectionSkeleton() {
   )
 }
 
-function SectionError({ message }: { message: string }) {
-  return (
-    <p className="text-sm text-red-600" role="alert">
-      {message}
-    </p>
-  )
-}
 
 const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
   return (
@@ -184,7 +178,7 @@ function BalanceCard() {
 const RECENT_PARAMS = { page: 1, limit: 5 }
 
 function RecentBets() {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['my-bets', RECENT_PARAMS],
     queryFn: () => getBets(RECENT_PARAMS),
   })
@@ -211,9 +205,9 @@ function RecentBets() {
         {isLoading ? (
           <SectionSkeleton />
         ) : isError ? (
-          <SectionError message={getErrorMessage()} />
+          <QueryErrorCard message={getErrorMessage()} onRetry={refetch} />
         ) : data?.data.length === 0 ? (
-          <p className="text-sm text-gray-400">No bets yet.</p>
+          <p className="text-sm text-gray-500">No bets yet — use the form above to place your first!</p>
         ) : (
           <>
             <div className="hidden overflow-x-auto md:block">
@@ -247,7 +241,7 @@ function RecentBets() {
 }
 
 function RecentTransactions() {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['my-transactions', RECENT_PARAMS],
     queryFn: () => getTransactions(RECENT_PARAMS),
   })
@@ -274,9 +268,9 @@ function RecentTransactions() {
         {isLoading ? (
           <SectionSkeleton />
         ) : isError ? (
-          <SectionError message={getErrorMessage()} />
+          <QueryErrorCard message={getErrorMessage()} onRetry={refetch} />
         ) : data?.data.length === 0 ? (
-          <p className="text-sm text-gray-400">No transactions yet.</p>
+          <p className="text-sm text-gray-500">No transactions yet — place a bet to see activity here.</p>
         ) : (
           <>
             <div className="hidden overflow-x-auto md:block">

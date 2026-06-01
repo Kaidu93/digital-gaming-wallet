@@ -7,6 +7,7 @@ import { betStatusSchema, type Bet, type BetStatus } from '@/features/bets/schem
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { formatEuro } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
@@ -232,35 +233,91 @@ const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
 
 function SkeletonRows() {
   return (
-    <div className="animate-pulse space-y-2">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="rounded-lg border border-gray-100 bg-white p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="h-4 w-24 shrink-0 rounded bg-gray-200" />
-            <div className="h-4 w-14 shrink-0 rounded bg-gray-200" />
+    <>
+      <div className="hidden animate-pulse overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
+        <table className="w-full">
+          <thead className="border-b border-gray-200 bg-gray-50">
+            <tr>
+              <th className="px-4 py-3"><div className="h-3 w-6 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="h-3 w-10 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="ml-auto h-3 w-14 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="h-3 w-12 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="ml-auto h-3 w-10 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="ml-auto h-3 w-14 rounded bg-gray-200" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <tr key={i} className="border-t border-gray-100">
+                <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-gray-200" /></td>
+                <td className="px-4 py-3"><div className="h-4 w-28 rounded bg-gray-200" /></td>
+                <td className="px-4 py-3"><div className="ml-auto h-4 w-16 rounded bg-gray-200" /></td>
+                <td className="px-4 py-3"><div className="h-5 w-14 rounded bg-gray-200" /></td>
+                <td className="px-4 py-3"><div className="ml-auto h-4 w-12 rounded bg-gray-200" /></td>
+                <td className="px-4 py-3"><div className="ml-auto h-7 w-16 rounded bg-gray-200" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="animate-pulse space-y-2 md:hidden">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-gray-100 bg-white p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="h-4 w-24 shrink-0 rounded bg-gray-200" />
+              <div className="h-5 w-14 shrink-0 rounded bg-gray-200" />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-4">
+              <div className="h-3 w-24 rounded bg-gray-200" />
+              <div className="h-4 w-16 rounded bg-gray-200" />
+            </div>
+            <div className="mt-3 flex justify-end">
+              <div className="h-8 w-16 rounded bg-gray-200" />
+            </div>
           </div>
-          <div className="mt-2 flex items-center justify-between gap-4">
-            <div className="h-3 flex-1 rounded bg-gray-200" />
-            <div className="h-3 w-14 shrink-0 rounded bg-gray-200" />
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   )
 }
 
-function EmptyState() {
+function EmptyState({ hasFilters }: { hasFilters: boolean }) {
+  if (hasFilters) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center">
+        <p className="text-sm text-gray-500">No bets match your filters.</p>
+      </div>
+    )
+  }
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center">
-      <p className="text-sm text-gray-500">No bets found.</p>
-    </div>
-  )
-}
-
-function ErrorState({ message }: { message: string }) {
-  return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
-      {message}
+    <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-900">No bets yet</p>
+        <p className="mt-1 text-sm text-gray-500">Place your first bet to get started.</p>
+      </div>
+      <Link
+        to="/"
+        className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+      >
+        Place a bet
+      </Link>
     </div>
   )
 }
@@ -274,10 +331,12 @@ function BetsPage() {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
   }
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['my-bets', search],
     queryFn: () => getBets(search),
   })
+
+  const hasFilters = search.status !== undefined || !!search.id
 
   function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const val = e.target.value
@@ -354,9 +413,9 @@ function BetsPage() {
       {isLoading ? (
         <SkeletonRows />
       ) : isError ? (
-        <ErrorState message={getErrorMessage()} />
+        <QueryErrorCard message={getErrorMessage()} onRetry={refetch} />
       ) : data?.data.length === 0 ? (
-        <EmptyState />
+        <EmptyState hasFilters={hasFilters} />
       ) : (
         <>
           <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
