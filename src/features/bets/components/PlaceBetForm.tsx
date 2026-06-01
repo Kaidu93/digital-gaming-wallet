@@ -109,10 +109,10 @@ export function PlaceBetForm() {
           <div
             role="status"
             className={cn(
-              'rounded-md px-4 py-3 text-sm font-medium',
+              'rounded-md px-4 py-3 text-center text-sm font-medium',
               result.outcome === 'win'
-                ? 'bg-green-50 text-green-800'
-                : 'bg-gray-50 text-gray-600',
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-gray-600',
             )}
           >
             {result.outcome === 'win'

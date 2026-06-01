@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { memo, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -139,7 +139,8 @@ function CancelBetButton({ bet }: { bet: Bet }) {
       <dialog
         ref={dialogRef}
         onCancel={() => setIsOpen(false)}
-        className="w-full max-w-sm rounded-lg border border-gray-200 p-6 shadow-xl backdrop:bg-black/40"
+        onClick={(e) => { if (e.target === dialogRef.current) closeDialog() }}
+        className="m-auto w-full max-w-sm rounded-lg border border-gray-200 p-6 text-left shadow-xl backdrop:bg-black/40"
       >
         <h2 className="text-base font-semibold text-gray-900">Cancel bet?</h2>
         <p className="mt-2 text-sm text-gray-600">
@@ -151,7 +152,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
             {cancelError}
           </p>
         )}
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="mt-4 flex justify-between gap-2">
           <Button
             type="button"
             variant="secondary"
@@ -295,7 +296,19 @@ function BetsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-gray-900">Bets</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-gray-900">Bets</h1>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          aria-label="Back to dashboard"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          Dashboard
+        </Link>
+      </div>
 
       <div className="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4">
         <div className="flex flex-col gap-1">

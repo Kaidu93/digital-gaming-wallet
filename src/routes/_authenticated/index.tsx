@@ -136,7 +136,7 @@ function BalanceCard() {
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Balance</p>
       <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900">{formatEuro(balance)}</p>
-      {user && <p className="mt-1 text-sm text-gray-500">Welcome back, {user.name}</p>}
+      {user && <p className="mt-1 text-sm text-gray-500">Welcome back, {user.name}!</p>}
     </div>
   )
 }
@@ -159,7 +159,11 @@ function RecentBets() {
     <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <h2 className="text-sm font-semibold text-gray-900">Recent bets</h2>
-        <Link to="/bets" search={{ page: 1, limit: 10 }} className="text-xs text-blue-600 hover:underline">
+        <Link
+          to="/bets"
+          search={{ page: 1, limit: 10 }}
+          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
           View all
         </Link>
       </div>
@@ -211,7 +215,11 @@ function RecentTransactions() {
     <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <h2 className="text-sm font-semibold text-gray-900">Recent transactions</h2>
-        <Link to="/transactions" search={{ page: 1, limit: 10 }} className="text-xs text-blue-600 hover:underline">
+        <Link
+          to="/transactions"
+          search={{ page: 1, limit: 10 }}
+          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
           View all
         </Link>
       </div>

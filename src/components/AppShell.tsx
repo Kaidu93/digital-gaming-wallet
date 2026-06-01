@@ -20,7 +20,7 @@ export default function AppShell() {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <span className="text-sm font-medium text-gray-700">{user?.name}</span>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-semibold text-gray-900">{formatEuro(balance)}</span>
+            <span className="text-sm font-semibold text-gray-900">Balance: {formatEuro(balance)}</span>
             <Button variant="ghost" onClick={handleLogout}>
               Logout
             </Button>
