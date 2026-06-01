@@ -133,6 +133,12 @@
 
 ### Phase 5 — Betting
 
+#### Task 5.1 — Bets Zod schemas + API
+
+- **What:** Created [src/features/bets/schemas.ts](src/features/bets/schemas.ts) (`betStatusSchema`, `betSchema`, `betsResponseSchema`, `placeBetSchema`, `placeBetResponseSchema`, `cancelBetResponseSchema`, `betFilterSchema` + inferred types) and [src/features/bets/api.ts](src/features/bets/api.ts) exporting `placeBet`, `getBets`, `cancelBet`.
+- **Why:** Mirrors the wallet feature pattern — every API boundary is schema-validated via `zodFetch` so contract drift (wrong types, missing fields, renamed enums) surfaces immediately as a `ZodParseError` rather than a silent runtime bug. `betStatusSchema = z.enum(['win','lost','canceled'])` locks in the American single-L spelling per [docs/assessment.md](docs/assessment.md) §6.
+- **How:** `winAmount` in `betSchema` and `placeBetResponseSchema` is `z.number().nullable()` — the API returns `null` on a loss and a positive number on a win. `placeBetSchema` uses `z.coerce.number().min(1)` so HTML string inputs are coerced before validation; `0.5` is rejected because it is below 1. The `cancelBet` response (`{ transactionId, balance, currency }`) is distinct from the place-bet response — each has its own schema to avoid accidental shape coupling.
+
 #### Task 5.2 — Place-bet form
 
 - **What:** Created [src/features/bets/components/PlaceBetForm.tsx](src/features/bets/components/PlaceBetForm.tsx) with an amount input, inline validation, and an inline win/loss result banner below the submit button.
@@ -151,8 +157,9 @@
 - **Why:** Destructive actions require a confirmation step per the UX brief. The `<dialog>` element is chosen per the implementation plan — it provides native modal semantics (focus trap, Esc-to-close, `backdrop::` styling) with no third-party dependency.
 - **How:** `isOpen` drives `dialogRef.current.showModal()` / `.close()` via `useEffect`. The native `cancel` event (fired by Esc) syncs `isOpen` back to `false` so state stays consistent. On confirm, `cancelBet(id)` is called; on success `setBalance(response.balance)` updates the header immediately and `queryClient.invalidateQueries` on `my-bets` + `my-transactions` keeps lists fresh. API errors render inside the dialog as `<p role="alert">` — the dialog stays open so the user can dismiss or retry. Cancel button is `disabled` + `aria-disabled` only when `status === 'canceled'`; `'lost'` bets remain cancellable per the spec note (API refunds the stake).
 
-#### Task 5.1 — Bets Zod schemas + API
+#### Task 5.5 — Index route — dashboard
 
-- **What:** Created [src/features/bets/schemas.ts](src/features/bets/schemas.ts) (`betStatusSchema`, `betSchema`, `betsResponseSchema`, `placeBetSchema`, `placeBetResponseSchema`, `cancelBetResponseSchema`, `betFilterSchema` + inferred types) and [src/features/bets/api.ts](src/features/bets/api.ts) exporting `placeBet`, `getBets`, `cancelBet`.
-- **Why:** Mirrors the wallet feature pattern — every API boundary is schema-validated via `zodFetch` so contract drift (wrong types, missing fields, renamed enums) surfaces immediately as a `ZodParseError` rather than a silent runtime bug. `betStatusSchema = z.enum(['win','lost','canceled'])` locks in the American single-L spelling per [docs/assessment.md](docs/assessment.md) §6.
-- **How:** `winAmount` in `betSchema` and `placeBetResponseSchema` is `z.number().nullable()` — the API returns `null` on a loss and a positive number on a win. `placeBetSchema` uses `z.coerce.number().min(1)` so HTML string inputs are coerced before validation; `0.5` is rejected because it is below 1. The `cancelBet` response (`{ transactionId, balance, currency }`) is distinct from the place-bet response — each has its own schema to avoid accidental shape coupling.
+- **What:** Created [src/routes/_authenticated/index.tsx](src/routes/_authenticated/index.tsx) — the `/` dashboard with a balance card, the place-bet form, a "recent bets" summary (top 5), and a "recent transactions" summary (top 5), linked to the full list pages.
+- **Why:** The landing page after login, as required by [docs/prd.md](docs/prd.md). Combining balance, betting, and recent activity in one view gives users a complete picture without navigating away.
+- **How:** `RecentBets` and `RecentTransactions` query with `queryKey: ['my-bets', { page: 1, limit: 5 }]` / `['my-transactions', { page: 1, limit: 5 }]`. Because `PlaceBetForm` calls `queryClient.invalidateQueries({ queryKey: ['my-bets'] })` on success (partial key match), both summary queries are automatically invalidated and refetched after every bet — no wiring needed. Layout is a two-column grid on desktop (`md:grid-cols-2` for the top row, `lg:grid-cols-2` for summaries) and stacked on mobile.
+
