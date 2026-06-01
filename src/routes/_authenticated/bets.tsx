@@ -8,7 +8,7 @@ import { cancelBet, getBets } from '@/features/bets/api'
 import { betStatusSchema, type Bet, type BetStatus } from '@/features/bets/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Pagination } from '@/components/ui/pagination'
+import { Pagination, PAGE_SIZE_OPTIONS } from '@/components/ui/pagination'
 import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { formatEuro } from '@/lib/format'
 import { useLocale } from '@/i18n'
@@ -17,10 +17,13 @@ import { isApiError } from '@/lib/api'
 import { useAuth } from '@/stores/auth'
 
 const betSearchSchema = z.object({
-  status: betStatusSchema.optional(),
+  status: betStatusSchema.optional().catch(undefined),
   id: z.string().optional(),
-  page: z.coerce.number().default(1),
-  limit: z.coerce.number().default(10),
+  page: z.coerce.number().int().min(1).catch(1),
+  limit: z.coerce
+    .number()
+    .refine((n): n is (typeof PAGE_SIZE_OPTIONS)[number] => PAGE_SIZE_OPTIONS.includes(n as never))
+    .catch(10),
 })
 
 type BetSearch = z.infer<typeof betSearchSchema>

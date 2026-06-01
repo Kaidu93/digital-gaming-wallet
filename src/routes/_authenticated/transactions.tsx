@@ -8,7 +8,7 @@ import { getTransactions } from '@/features/wallet/api'
 import { transactionTypeSchema, type Transaction } from '@/features/wallet/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Pagination } from '@/components/ui/pagination'
+import { Pagination, PAGE_SIZE_OPTIONS } from '@/components/ui/pagination'
 import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { formatEuro } from '@/lib/format'
 import { useLocale } from '@/i18n'
@@ -16,10 +16,13 @@ import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
 
 const transactionSearchSchema = z.object({
-  type: transactionTypeSchema.optional(),
+  type: transactionTypeSchema.optional().catch(undefined),
   id: z.string().optional(),
-  page: z.coerce.number().default(1),
-  limit: z.coerce.number().default(10),
+  page: z.coerce.number().int().min(1).catch(1),
+  limit: z.coerce
+    .number()
+    .refine((n): n is (typeof PAGE_SIZE_OPTIONS)[number] => PAGE_SIZE_OPTIONS.includes(n as never))
+    .catch(10),
 })
 
 type TransactionSearch = z.infer<typeof transactionSearchSchema>

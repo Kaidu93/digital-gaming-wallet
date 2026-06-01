@@ -2,13 +2,15 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50]
+export const PAGE_SIZE_OPTIONS = [10, 25, 50] as const
+
+export type PageSize = (typeof PAGE_SIZE_OPTIONS)[number]
 
 interface PaginationProps {
   total: number
   page: number
-  limit: number
-  onChange: (params: { page: number; limit: number }) => void
+  limit: PageSize
+  onChange: (params: { page: number; limit: PageSize }) => void
   className?: string
 }
 
@@ -30,7 +32,7 @@ export function Pagination({ total, page, limit, onChange, className }: Paginati
         <select
           id="page-size-select"
           value={limit}
-          onChange={(e) => onChange({ page: 1, limit: Number(e.target.value) })}
+          onChange={(e) => onChange({ page: 1, limit: Number(e.target.value) as PageSize })}
           className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
         >
           {PAGE_SIZE_OPTIONS.map((size) => (
