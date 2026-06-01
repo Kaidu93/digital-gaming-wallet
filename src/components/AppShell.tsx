@@ -78,7 +78,6 @@ export default function AppShell() {
 
   function handleLogout() {
     logout()
-    router.navigate({ to: '/login' })
   }
 
   return (
