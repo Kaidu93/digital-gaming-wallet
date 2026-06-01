@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { login, register } from '@/features/auth/api';
 import { registerSchema } from '@/features/auth/schemas';
 import { useAuth } from '@/stores/auth';
+import { isApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -74,7 +75,12 @@ function RegisterPage() {
         router.navigate({ to: '/login', search: { redirect: '/', prefillEmail: result.data.email } });
       }
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('registrationFailed'));
+      const message = isApiError(err)
+        ? err.message
+        : err instanceof Error
+        ? err.message
+        : t('registrationFailed');
+      setApiError(message);
     } finally {
       setIsLoading(false);
     }

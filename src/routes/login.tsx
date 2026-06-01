@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { login } from '@/features/auth/api';
 import { loginSchema } from '@/features/auth/schemas';
 import { useAuth } from '@/stores/auth';
+import { isApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,7 +63,12 @@ function LoginPage() {
       await login(result.data);
       router.navigate({ to: search.redirect ?? '/' });
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : t('loginFailed'));
+      const message = isApiError(err)
+        ? err.message
+        : err instanceof Error
+        ? err.message
+        : t('loginFailed');
+      setApiError(message);
     } finally {
       setIsLoading(false);
     }
