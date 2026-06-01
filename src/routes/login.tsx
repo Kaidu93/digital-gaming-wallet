@@ -31,7 +31,7 @@ function LoginPage() {
   const router = useRouter();
   const search = Route.useSearch();
   const { t } = useTranslation('auth');
-  const [fields, setFields] = useState({ email: '', password: '' });
+  const [fields, setFields] = useState({ email: search.prefillEmail ?? '', password: '' });
   const [fieldErrors, setFieldErrors] = useState<{ email?: string[]; password?: string[] }>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
