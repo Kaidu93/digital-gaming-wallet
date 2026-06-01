@@ -7,6 +7,7 @@ import { formatEuro } from '@/lib/format'
 import { useLocale } from '@/i18n'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/components/ThemeProvider'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
@@ -30,21 +31,6 @@ function ThemeToggle() {
           <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
         </svg>
       )}
-    </button>
-  )
-}
-
-function LanguageSwitcher() {
-  const { i18n } = useTranslation()
-  const nextLang = i18n.language === 'lt' ? 'en' : 'lt'
-
-  return (
-    <button
-      type="button"
-      onClick={() => i18n.changeLanguage(nextLang)}
-      className="rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-    >
-      {nextLang}
     </button>
   )
 }

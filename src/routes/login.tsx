@@ -9,6 +9,7 @@ import { isApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -77,7 +78,10 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">{t('signIn')}</h1>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{t('signIn')}</h1>
+          <LanguageSwitcher />
+        </div>
 
         {apiError && (
           <div
