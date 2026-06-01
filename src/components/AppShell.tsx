@@ -87,8 +87,8 @@ export default function AppShell() {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
           <span className="min-w-0 truncate text-sm font-medium text-gray-700 dark:text-gray-300">{user?.name}</span>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100" aria-live="polite" aria-atomic="true">
-              <span className="hidden sm:inline">{t('balancePrefix')}</span>
+            <span className="hidden sm:inline text-sm font-semibold text-gray-900 dark:text-gray-100" aria-live="polite" aria-atomic="true">
+              <span>{t('balancePrefix')}</span>
               <motion.span>{formattedBalance}</motion.span>
             </span>
             <LanguageSwitcher />
