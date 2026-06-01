@@ -171,3 +171,13 @@
 - **Why:** The spec requires every mutation surface to show API errors inline as `<p role="alert">` — either above the relevant form or below the relevant button. More importantly, 401 responses must not render a stray error message: `api.ts` calls `logout()` on 401, which causes the `_authenticated` guard to redirect, so surfacing the error string too would flash a confusing red message before the redirect clears the page.
 - **How:** Added an `isApiError(err) && err.status === 401` guard to both handlers — early-return without setting error state on 401s. Moved the `apiError` `<p role="alert">` in `PlaceBetForm` from between the input and the submit button to below the submit button (satisfying "below the relevant button"). `CancelBetButton`'s error already rendered inside the dialog above the action buttons — retained that position as the natural placement for dialog-level feedback. Login and register forms deliberately do NOT filter 401 — a 401 from `POST /login` means invalid credentials and must be shown.
 
+#### Task 6.2 — Responsive layout pass
+
+- **What:** Responsive fixes across [src/components/AppShell.tsx](src/components/AppShell.tsx), [src/routes/_authenticated/index.tsx](src/routes/_authenticated/index.tsx), [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx), and [src/routes/_authenticated/transactions.tsx](src/routes/_authenticated/transactions.tsx).
+- **Why:** Audit at 360px surfaced three categories of overflow: long user names in the header, fixed-width skeleton rows exceeding the viewport, and multi-column summary tables on the dashboard that couldn't safely fit in ~296px of usable content width.
+- **How:**
+  - Header: `min-w-0 truncate` on the user name, `shrink-0` on the balance+logout cluster, "Balance:" label hidden below `sm` so the euro amount fits alongside Logout at 360px.
+  - Dashboard recent sections (`RecentBets`, `RecentTransactions`): added `BetMiniCard` and `TxMiniCard` card components (shown `md:hidden`) alongside the existing `hidden md:block` tables, removing the horizontal scroll that `overflow-x-auto` masked on mobile.
+  - Skeleton loaders: replaced fixed-width flex rows (aggregate ~450px) with a card-shaped skeleton using `flex-1` for the middle stripe — works at any viewport width.
+  - Filter ID inputs on bets/transactions pages: changed from `w-52` (fixed 208px) to `flex-1 min-w-0 sm:w-52 sm:flex-none` so the input grows to fill the available row width on narrow screens.
+

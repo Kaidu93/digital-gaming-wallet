@@ -69,10 +69,15 @@ function SectionSkeleton() {
   return (
     <div className="animate-pulse space-y-2">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="flex gap-4 rounded border border-gray-100 bg-white p-3">
-          <div className="h-4 w-20 rounded bg-gray-200" />
-          <div className="h-4 w-24 rounded bg-gray-200" />
-          <div className="ml-auto h-4 w-16 rounded bg-gray-200" />
+        <div key={i} className="rounded border border-gray-100 bg-white p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="h-4 w-20 shrink-0 rounded bg-gray-200" />
+            <div className="h-4 w-14 shrink-0 rounded bg-gray-200" />
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className="h-3 flex-1 rounded bg-gray-200" />
+            <div className="h-3 w-12 shrink-0 rounded bg-gray-200" />
+          </div>
         </div>
       ))}
     </div>
@@ -128,6 +133,41 @@ const TxRow = memo(function TxRow({ tx }: { tx: Transaction }) {
   )
 })
 
+const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-gray-500">{bet.id.slice(0, 8)}&hellip;</span>
+          <StatusBadge status={bet.status} />
+        </div>
+        <span className="mt-0.5 block text-xs text-gray-400">{bet.createdAt.toLocaleDateString('en-IE')}</span>
+      </div>
+      <div className="shrink-0 text-right">
+        <span className="block text-sm font-medium text-gray-900">{formatEuro(bet.amount)}</span>
+        {bet.winAmount !== null && (
+          <span className="block text-xs text-green-600">{formatEuro(bet.winAmount)}</span>
+        )}
+      </div>
+    </div>
+  )
+})
+
+const TxMiniCard = memo(function TxMiniCard({ tx }: { tx: Transaction }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-gray-500">{tx.id.slice(0, 8)}&hellip;</span>
+          <TypeBadge type={tx.type} />
+        </div>
+        <span className="mt-0.5 block text-xs text-gray-400">{tx.createdAt.toLocaleDateString('en-IE')}</span>
+      </div>
+      <span className="shrink-0 text-sm font-medium text-gray-900">{formatEuro(tx.amount)}</span>
+    </div>
+  )
+})
+
 function BalanceCard() {
   const balance = useAuth((s) => s.balance)
   const user = useAuth((s) => s.user)
@@ -175,24 +215,31 @@ function RecentBets() {
         ) : data?.data.length === 0 ? (
           <p className="text-sm text-gray-400">No bets yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                <tr>
-                  <th scope="col" className="px-3 pb-2">ID</th>
-                  <th scope="col" className="px-3 pb-2">Date</th>
-                  <th scope="col" className="px-3 pb-2 text-right">Amount</th>
-                  <th scope="col" className="px-3 pb-2">Status</th>
-                  <th scope="col" className="px-3 pb-2 text-right">Prize</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data?.data.map((bet) => (
-                  <BetRow key={bet.id} bet={bet} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full text-left">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <tr>
+                    <th scope="col" className="px-3 pb-2">ID</th>
+                    <th scope="col" className="px-3 pb-2">Date</th>
+                    <th scope="col" className="px-3 pb-2 text-right">Amount</th>
+                    <th scope="col" className="px-3 pb-2">Status</th>
+                    <th scope="col" className="px-3 pb-2 text-right">Prize</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.data.map((bet) => (
+                    <BetRow key={bet.id} bet={bet} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex flex-col gap-1 md:hidden">
+              {data?.data.map((bet) => (
+                <BetMiniCard key={bet.id} bet={bet} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>
@@ -231,23 +278,30 @@ function RecentTransactions() {
         ) : data?.data.length === 0 ? (
           <p className="text-sm text-gray-400">No transactions yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                <tr>
-                  <th scope="col" className="px-3 pb-2">ID</th>
-                  <th scope="col" className="px-3 pb-2">Date</th>
-                  <th scope="col" className="px-3 pb-2">Type</th>
-                  <th scope="col" className="px-3 pb-2 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data?.data.map((tx) => (
-                  <TxRow key={tx.id} tx={tx} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full text-left">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <tr>
+                    <th scope="col" className="px-3 pb-2">ID</th>
+                    <th scope="col" className="px-3 pb-2">Date</th>
+                    <th scope="col" className="px-3 pb-2">Type</th>
+                    <th scope="col" className="px-3 pb-2 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.data.map((tx) => (
+                    <TxRow key={tx.id} tx={tx} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex flex-col gap-1 md:hidden">
+              {data?.data.map((tx) => (
+                <TxMiniCard key={tx.id} tx={tx} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>

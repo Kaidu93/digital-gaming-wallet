@@ -25,10 +25,13 @@ export default function AppShell() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <span className="text-sm font-medium text-gray-700">{user?.name}</span>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-semibold text-gray-900">Balance: {formatEuro(balance)}</span>
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
+          <span className="min-w-0 truncate text-sm font-medium text-gray-700">{user?.name}</span>
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="text-sm font-semibold text-gray-900">
+              <span className="hidden sm:inline">Balance: </span>
+              {formatEuro(balance)}
+            </span>
             <Button variant="ghost" onClick={handleLogout}>
               Logout
             </Button>

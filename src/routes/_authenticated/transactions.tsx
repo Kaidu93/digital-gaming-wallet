@@ -126,11 +126,15 @@ function SkeletonRows() {
   return (
     <div className="animate-pulse space-y-2">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex gap-4 rounded-lg border border-gray-100 bg-white p-4">
-          <div className="h-4 w-24 rounded bg-gray-200" />
-          <div className="h-4 w-36 rounded bg-gray-200" />
-          <div className="h-4 w-16 rounded bg-gray-200" />
-          <div className="ml-auto h-4 w-20 rounded bg-gray-200" />
+        <div key={i} className="rounded-lg border border-gray-100 bg-white p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="h-4 w-24 shrink-0 rounded bg-gray-200" />
+            <div className="h-4 w-14 shrink-0 rounded bg-gray-200" />
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-4">
+            <div className="h-3 flex-1 rounded bg-gray-200" />
+            <div className="h-3 w-14 shrink-0 rounded bg-gray-200" />
+          </div>
         </div>
       ))}
     </div>
@@ -220,7 +224,7 @@ function TransactionsPage() {
           </select>
         </div>
 
-        <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex flex-col gap-1">
+        <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex w-full flex-col gap-1 sm:w-auto">
           <label htmlFor="id-filter" className="text-xs font-medium text-gray-500">
             Transaction ID
           </label>
@@ -230,7 +234,7 @@ function TransactionsPage() {
               value={idInput}
               onChange={(e) => setIdInput(e.target.value)}
               placeholder="Filter by ID..."
-              className="w-52"
+              className="min-w-0 flex-1 sm:w-52 sm:flex-none"
             />
             <Button type="submit" variant="secondary">
               Search
