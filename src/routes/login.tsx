@@ -57,13 +57,13 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border border-gray-200">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Sign in</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">Sign in</h1>
 
         {apiError && (
           <div
-            className="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+            className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
             role="alert"
           >
             {apiError}
@@ -99,14 +99,14 @@ function LoginPage() {
             />
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full mt-2">
+          <Button type="submit" disabled={isLoading} className="mt-2 w-full">
             {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline font-medium">
+          <Link to="/register" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
             Register
           </Link>
         </p>

@@ -23,9 +23,9 @@ const STATUS_LABELS: Record<BetStatus, string> = {
 }
 
 const STATUS_BADGE_CLASSES: Record<BetStatus, string> = {
-  win: 'bg-green-100 text-green-700',
-  lost: 'bg-red-100 text-red-700',
-  canceled: 'bg-gray-100 text-gray-600',
+  win: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  lost: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  canceled: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -35,9 +35,9 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE_CLASSES: Record<string, string> = {
-  bet: 'bg-blue-100 text-blue-700',
-  win: 'bg-green-100 text-green-700',
-  cancel: 'bg-gray-100 text-gray-600',
+  bet: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  win: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  cancel: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
 }
 
 function StatusBadge({ status }: { status: BetStatus }) {
@@ -58,7 +58,7 @@ function TypeBadge({ type }: { type: string }) {
     <span
       className={cn(
         'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium',
-        TYPE_BADGE_CLASSES[type] ?? 'bg-gray-100 text-gray-600',
+        TYPE_BADGE_CLASSES[type] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
       )}
     >
       {TYPE_LABELS[type] ?? type}
@@ -70,14 +70,14 @@ function SectionSkeleton() {
   return (
     <div className="animate-pulse space-y-2">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="rounded border border-gray-100 bg-white p-3">
+        <div key={i} className="rounded border border-gray-100 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center justify-between gap-3">
-            <div className="h-4 w-20 shrink-0 rounded bg-gray-200" />
-            <div className="h-4 w-14 shrink-0 rounded bg-gray-200" />
+            <div className="h-4 w-20 shrink-0 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-14 shrink-0 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div className="mt-2 flex items-center justify-between gap-3">
-            <div className="h-3 flex-1 rounded bg-gray-200" />
-            <div className="h-3 w-12 shrink-0 rounded bg-gray-200" />
+            <div className="h-3 flex-1 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-3 w-12 shrink-0 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
         </div>
       ))}
@@ -88,20 +88,20 @@ function SectionSkeleton() {
 
 const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
+    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <td className="px-3 py-2">
-        <span className="font-mono text-xs text-gray-500">{bet.id.slice(0, 8)}&hellip;</span>
+        <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
       </td>
-      <td className="px-3 py-2 text-xs text-gray-500">
+      <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
         {bet.createdAt.toLocaleDateString('en-IE')}
       </td>
-      <td className="px-3 py-2 text-right text-sm font-medium text-gray-900">
+      <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
         {formatEuro(bet.amount)}
       </td>
       <td className="px-3 py-2">
         <StatusBadge status={bet.status} />
       </td>
-      <td className="px-3 py-2 text-right text-sm text-gray-500">
+      <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
         {bet.winAmount !== null ? formatEuro(bet.winAmount) : '—'}
       </td>
     </tr>
@@ -110,17 +110,17 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
 
 const TxRow = memo(function TxRow({ tx }: { tx: Transaction }) {
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
+    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <td className="px-3 py-2">
-        <span className="font-mono text-xs text-gray-500">{tx.id.slice(0, 8)}&hellip;</span>
+        <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
       </td>
-      <td className="px-3 py-2 text-xs text-gray-500">
+      <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
         {tx.createdAt.toLocaleDateString('en-IE')}
       </td>
       <td className="px-3 py-2">
         <TypeBadge type={tx.type} />
       </td>
-      <td className="px-3 py-2 text-right text-sm font-medium text-gray-900">
+      <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
         {formatEuro(tx.amount)}
       </td>
     </tr>
@@ -129,18 +129,18 @@ const TxRow = memo(function TxRow({ tx }: { tx: Transaction }) {
 
 const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50">
+    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-gray-500">{bet.id.slice(0, 8)}&hellip;</span>
+          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
           <StatusBadge status={bet.status} />
         </div>
-        <span className="mt-0.5 block text-xs text-gray-500">{bet.createdAt.toLocaleDateString('en-IE')}</span>
+        <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{bet.createdAt.toLocaleDateString('en-IE')}</span>
       </div>
       <div className="shrink-0 text-right">
-        <span className="block text-sm font-medium text-gray-900">{formatEuro(bet.amount)}</span>
+        <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">{formatEuro(bet.amount)}</span>
         {bet.winAmount !== null && (
-          <span className="block text-xs text-green-600">{formatEuro(bet.winAmount)}</span>
+          <span className="block text-xs text-green-600 dark:text-green-400">{formatEuro(bet.winAmount)}</span>
         )}
       </div>
     </div>
@@ -149,15 +149,15 @@ const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
 
 const TxMiniCard = memo(function TxMiniCard({ tx }: { tx: Transaction }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50">
+    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-gray-500">{tx.id.slice(0, 8)}&hellip;</span>
+          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
           <TypeBadge type={tx.type} />
         </div>
-        <span className="mt-0.5 block text-xs text-gray-500">{tx.createdAt.toLocaleDateString('en-IE')}</span>
+        <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{tx.createdAt.toLocaleDateString('en-IE')}</span>
       </div>
-      <span className="shrink-0 text-sm font-medium text-gray-900">{formatEuro(tx.amount)}</span>
+      <span className="shrink-0 text-sm font-medium text-gray-900 dark:text-gray-100">{formatEuro(tx.amount)}</span>
     </div>
   )
 })
@@ -167,10 +167,10 @@ function BalanceCard() {
   const user = useAuth((s) => s.user)
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Balance</p>
-      <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900">{formatEuro(balance)}</p>
-      {user && <p className="mt-1 text-sm text-gray-500">Welcome back, {user.name}!</p>}
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Balance</p>
+      <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{formatEuro(balance)}</p>
+      {user && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Welcome back, {user.name}!</p>}
     </div>
   )
 }
@@ -190,13 +190,13 @@ function RecentBets() {
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">Recent bets</h2>
+    <section className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent bets</h2>
         <Link
           to="/bets"
           search={{ page: 1, limit: 10 }}
-          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
         >
           View all
         </Link>
@@ -207,12 +207,12 @@ function RecentBets() {
         ) : isError ? (
           <QueryErrorCard message={getErrorMessage()} onRetry={refetch} />
         ) : data?.data.length === 0 ? (
-          <p className="text-sm text-gray-500">No bets yet — use the form above to place your first!</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No bets yet — use the form above to place your first!</p>
         ) : (
           <>
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-3 pb-2">ID</th>
                     <th scope="col" className="px-3 pb-2">Date</th>
@@ -253,13 +253,13 @@ function RecentTransactions() {
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">Recent transactions</h2>
+    <section className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent transactions</h2>
         <Link
           to="/transactions"
           search={{ page: 1, limit: 10 }}
-          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
         >
           View all
         </Link>
@@ -270,12 +270,12 @@ function RecentTransactions() {
         ) : isError ? (
           <QueryErrorCard message={getErrorMessage()} onRetry={refetch} />
         ) : data?.data.length === 0 ? (
-          <p className="text-sm text-gray-500">No transactions yet — place a bet to see activity here.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No transactions yet — place a bet to see activity here.</p>
         ) : (
           <>
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-3 pb-2">ID</th>
                     <th scope="col" className="px-3 pb-2">Date</th>
@@ -307,8 +307,8 @@ function DashboardPage() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <BalanceCard />
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-900">Place a bet</h2>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+          <h2 className="mb-4 text-sm font-semibold text-gray-900 dark:text-gray-100">Place a bet</h2>
           <PlaceBetForm />
         </div>
       </div>

@@ -22,14 +22,14 @@ export function Pagination({ total, page, limit, onChange, className }: Paginati
       aria-label="Pagination"
     >
       <div className="flex items-center gap-2">
-        <label htmlFor="page-size-select" className="text-sm text-gray-500">
+        <label htmlFor="page-size-select" className="text-sm text-gray-500 dark:text-gray-400">
           Rows per page
         </label>
         <select
           id="page-size-select"
           value={limit}
           onChange={(e) => onChange({ page: 1, limit: Number(e.target.value) })}
-          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
         >
           {PAGE_SIZE_OPTIONS.map((size) => (
             <option key={size} value={size}>
@@ -49,7 +49,7 @@ export function Pagination({ total, page, limit, onChange, className }: Paginati
           &larr; Prev
         </Button>
 
-        <span className="text-sm text-gray-600" aria-live="polite" aria-atomic="true">
+        <span className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite" aria-atomic="true">
           Page {page} of {totalPages}
         </span>
 

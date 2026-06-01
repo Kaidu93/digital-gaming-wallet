@@ -196,3 +196,12 @@
   - Skeleton loaders: replaced fixed-width flex rows (aggregate ~450px) with a card-shaped skeleton using `flex-1` for the middle stripe — works at any viewport width.
   - Filter ID inputs on bets/transactions pages: changed from `w-52` (fixed 208px) to `flex-1 min-w-0 sm:w-52 sm:flex-none` so the input grows to fill the available row width on narrow screens.
 
+
+
+### Phase 7 — Bonus Features
+
+#### Task 7.1 — Dark/light theme toggle
+
+- **What:** Created [src/components/ThemeProvider.tsx](src/components/ThemeProvider.tsx) exporting `ThemeProvider` and `useTheme()`. Added an anti-FOUC inline script to [index.html](index.html) that reads `localStorage('theme')` and applies `class="dark"` on `<html>` before React hydrates. Configured Tailwind v4 class-based dark mode via `@custom-variant dark (&:is(.dark *))` in [src/index.css](src/index.css). Added a sun/moon toggle button to [src/components/AppShell.tsx](src/components/AppShell.tsx). Applied `dark:` variants across all routes and UI primitives.
+- **Why:** Bonus feature from [docs/prd.md](docs/prd.md). The anti-FOUC script is mandatory — without it, a dark-preference user sees a white flash on first paint before React mounts. Tailwind v4 uses `@custom-variant` instead of `darkMode: 'class'` in a config file.
+- **How:** `ThemeProvider` initialises from `localStorage` or `prefers-color-scheme`, applies/removes `class="dark"` on `documentElement`, and persists the choice. The inline script in `index.html` mirrors the same logic synchronously so the class is set before the first paint. The dark colour palette follows a gray-900/gray-950 surface hierarchy with gray-100 text, matching Tailwind's recommended dark-mode approach.

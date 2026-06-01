@@ -74,7 +74,7 @@ export function PlaceBetForm() {
           <Label htmlFor="bet-amount" required>
             Bet amount
           </Label>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
             Available: {formatEuro(balance)}
           </p>
         </div>
@@ -103,7 +103,7 @@ export function PlaceBetForm() {
           {isSubmitting ? 'Placing bet…' : 'Place bet'}
         </Button>
         {apiError && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
             {apiError}
           </p>
         )}
@@ -113,8 +113,8 @@ export function PlaceBetForm() {
             className={cn(
               'rounded-md px-4 py-3 text-center text-sm font-medium',
               result.outcome === 'win'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-gray-600',
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                : 'bg-red-100 text-gray-600 dark:bg-red-900/20 dark:text-gray-400',
             )}
           >
             {result.outcome === 'win'

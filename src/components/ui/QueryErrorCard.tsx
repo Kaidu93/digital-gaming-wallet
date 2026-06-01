@@ -10,15 +10,15 @@ export function QueryErrorCard({ message, onRetry, className }: QueryErrorCardPr
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-6 text-center',
+        'flex flex-col items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30',
         className,
       )}
       role="alert"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 text-red-600"
+          className="h-5 w-5 text-red-600 dark:text-red-400"
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
@@ -30,12 +30,12 @@ export function QueryErrorCard({ message, onRetry, className }: QueryErrorCardPr
           />
         </svg>
       </div>
-      <p className="text-sm text-red-700">{message}</p>
+      <p className="text-sm text-red-700 dark:text-red-400">{message}</p>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          className="inline-flex items-center rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700"
         >
           Try again
         </button>

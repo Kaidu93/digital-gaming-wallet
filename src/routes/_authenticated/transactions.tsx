@@ -33,9 +33,9 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE_CLASSES: Record<string, string> = {
-  bet: 'bg-blue-100 text-blue-700',
-  win: 'bg-green-100 text-green-700',
-  cancel: 'bg-gray-100 text-gray-600',
+  bet: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  win: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  cancel: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
 }
 
 function TypeBadge({ type }: { type: string }) {
@@ -43,7 +43,7 @@ function TypeBadge({ type }: { type: string }) {
     <span
       className={cn(
         'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium',
-        TYPE_BADGE_CLASSES[type] ?? 'bg-gray-100 text-gray-600',
+        TYPE_BADGE_CLASSES[type] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
       )}
     >
       {TYPE_LABELS[type] ?? type}
@@ -67,10 +67,10 @@ function CopyButton({ text }: { text: string }) {
       onClick={handleCopy}
       aria-label={copied ? 'Copied' : 'Copy ID'}
       title={copied ? 'Copied!' : 'Copy ID'}
-      className="ml-1 rounded p-0.5 text-gray-400 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="ml-1 rounded p-0.5 text-gray-400 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-500 dark:hover:text-gray-300"
     >
       {copied ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-500 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       ) : (
@@ -85,20 +85,20 @@ function CopyButton({ text }: { text: string }) {
 
 const TransactionRow = memo(function TransactionRow({ tx }: { tx: Transaction }) {
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
+    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <td className="px-4 py-3">
         <div className="flex items-center">
-          <span className="font-mono text-xs text-gray-600">{tx.id.slice(0, 8)}&hellip;</span>
+          <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
           <CopyButton text={tx.id} />
         </div>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
         {tx.createdAt.toLocaleString('en-IE')}
       </td>
       <td className="px-4 py-3">
         <TypeBadge type={tx.type} />
       </td>
-      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
         {formatEuro(tx.amount)}
       </td>
     </tr>
@@ -107,17 +107,17 @@ const TransactionRow = memo(function TransactionRow({ tx }: { tx: Transaction })
 
 const TransactionCard = memo(function TransactionCard({ tx }: { tx: Transaction }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center min-w-0">
-          <span className="font-mono text-xs text-gray-500">{tx.id.slice(0, 8)}&hellip;</span>
+        <div className="flex min-w-0 items-center">
+          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
           <CopyButton text={tx.id} />
         </div>
         <TypeBadge type={tx.type} />
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-500">{tx.createdAt.toLocaleString('en-IE')}</span>
-        <span className="text-sm font-semibold text-gray-900">{formatEuro(tx.amount)}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{tx.createdAt.toLocaleString('en-IE')}</span>
+        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatEuro(tx.amount)}</span>
       </div>
     </div>
   )
@@ -126,23 +126,23 @@ const TransactionCard = memo(function TransactionCard({ tx }: { tx: Transaction 
 function SkeletonRows() {
   return (
     <>
-      <div className="hidden animate-pulse overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
+      <div className="hidden animate-pulse overflow-hidden rounded-lg border border-gray-200 bg-white md:block dark:border-gray-700 dark:bg-gray-900">
         <table className="w-full">
-          <thead className="border-b border-gray-200 bg-gray-50">
+          <thead className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
             <tr>
-              <th className="px-4 py-3"><div className="h-3 w-6 rounded bg-gray-200" /></th>
-              <th className="px-4 py-3"><div className="h-3 w-10 rounded bg-gray-200" /></th>
-              <th className="px-4 py-3"><div className="h-3 w-8 rounded bg-gray-200" /></th>
-              <th className="px-4 py-3"><div className="ml-auto h-3 w-14 rounded bg-gray-200" /></th>
+              <th className="px-4 py-3"><div className="h-3 w-6 rounded bg-gray-200 dark:bg-gray-700" /></th>
+              <th className="px-4 py-3"><div className="h-3 w-10 rounded bg-gray-200 dark:bg-gray-700" /></th>
+              <th className="px-4 py-3"><div className="h-3 w-8 rounded bg-gray-200 dark:bg-gray-700" /></th>
+              <th className="px-4 py-3"><div className="ml-auto h-3 w-14 rounded bg-gray-200 dark:bg-gray-700" /></th>
             </tr>
           </thead>
           <tbody>
             {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i} className="border-t border-gray-100">
-                <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-gray-200" /></td>
-                <td className="px-4 py-3"><div className="h-4 w-28 rounded bg-gray-200" /></td>
-                <td className="px-4 py-3"><div className="h-5 w-16 rounded bg-gray-200" /></td>
-                <td className="px-4 py-3"><div className="ml-auto h-4 w-16 rounded bg-gray-200" /></td>
+              <tr key={i} className="border-t border-gray-100 dark:border-gray-800">
+                <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" /></td>
+                <td className="px-4 py-3"><div className="h-4 w-28 rounded bg-gray-200 dark:bg-gray-700" /></td>
+                <td className="px-4 py-3"><div className="h-5 w-16 rounded bg-gray-200 dark:bg-gray-700" /></td>
+                <td className="px-4 py-3"><div className="ml-auto h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" /></td>
               </tr>
             ))}
           </tbody>
@@ -150,14 +150,14 @@ function SkeletonRows() {
       </div>
       <div className="animate-pulse space-y-2 md:hidden">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-lg border border-gray-100 bg-white p-4">
+          <div key={i} className="rounded-lg border border-gray-100 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between gap-4">
-              <div className="h-4 w-24 shrink-0 rounded bg-gray-200" />
-              <div className="h-5 w-14 shrink-0 rounded bg-gray-200" />
+              <div className="h-4 w-24 shrink-0 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-5 w-14 shrink-0 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
             <div className="mt-2 flex items-center justify-between gap-4">
-              <div className="h-3 w-24 rounded bg-gray-200" />
-              <div className="h-4 w-16 rounded bg-gray-200" />
+              <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
           </div>
         ))}
@@ -169,17 +169,17 @@ function SkeletonRows() {
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   if (hasFilters) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center">
-        <p className="text-sm text-gray-500">No transactions match your filters.</p>
+      <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-900">
+        <p className="text-sm text-gray-500 dark:text-gray-400">No transactions match your filters.</p>
       </div>
     )
   }
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+    <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 text-gray-400"
+          className="h-6 w-6 text-gray-400 dark:text-gray-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -194,8 +194,8 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
         </svg>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-900">No transactions yet</p>
-        <p className="mt-1 text-sm text-gray-500">Place a bet to generate your first transaction.</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">No transactions yet</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Place a bet to generate your first transaction.</p>
       </div>
       <Link
         to="/"
@@ -245,10 +245,10 @@ function TransactionsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Transactions</h1>
         <Link
           to="/"
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
           aria-label="Back to dashboard"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -258,16 +258,16 @@ function TransactionsPage() {
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex flex-col gap-1">
-          <label htmlFor="type-filter" className="text-xs font-medium text-gray-500">
+          <label htmlFor="type-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
             Type
           </label>
           <select
             id="type-filter"
             value={search.type ?? ''}
             onChange={handleTypeChange}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           >
             <option value="">All types</option>
             <option value="bet">Bet</option>
@@ -277,7 +277,7 @@ function TransactionsPage() {
         </div>
 
         <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex w-full flex-col gap-1 sm:w-auto">
-          <label htmlFor="id-filter" className="text-xs font-medium text-gray-500">
+          <label htmlFor="id-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
             Transaction ID
           </label>
           <div className="flex gap-2">
@@ -303,9 +303,9 @@ function TransactionsPage() {
         <EmptyState hasFilters={hasFilters} />
       ) : (
         <>
-          <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
+          <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white md:block dark:border-gray-700 dark:bg-gray-900">
             <table className="w-full text-left">
-              <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <tr>
                   <th scope="col" className="px-4 py-3">ID</th>
                   <th scope="col" className="px-4 py-3">Date</th>
