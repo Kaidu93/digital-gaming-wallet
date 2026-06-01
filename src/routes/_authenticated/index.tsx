@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
+import { motion, useReducedMotion, useSpring, useTransform } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { getBets } from '@/features/bets/api'
 import { getTransactions } from '@/features/wallet/api'
@@ -77,10 +78,16 @@ function SectionSkeleton() {
   )
 }
 
-const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
+const BetRow = memo(function BetRow({ bet, index }: { bet: Bet; index: number }) {
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+    <motion.tr
+      className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.18, delay: index * 0.04 }}
+    >
       <td className="px-3 py-2">
         <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
       </td>
@@ -96,14 +103,20 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
       <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
         {bet.winAmount !== null ? formatEuro(bet.winAmount, locale) : '—'}
       </td>
-    </tr>
+    </motion.tr>
   )
 })
 
-const TxRow = memo(function TxRow({ tx }: { tx: Transaction }) {
+const TxRow = memo(function TxRow({ tx, index }: { tx: Transaction; index: number }) {
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+    <motion.tr
+      className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.18, delay: index * 0.04 }}
+    >
       <td className="px-3 py-2">
         <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
       </td>
@@ -116,14 +129,20 @@ const TxRow = memo(function TxRow({ tx }: { tx: Transaction }) {
       <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
         {formatEuro(tx.amount, locale)}
       </td>
-    </tr>
+    </motion.tr>
   )
 })
 
-const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
+const BetMiniCard = memo(function BetMiniCard({ bet, index }: { bet: Bet; index: number }) {
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+    <motion.div
+      className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.18, delay: index * 0.04 }}
+    >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
@@ -137,14 +156,20 @@ const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
           <span className="block text-xs text-green-600 dark:text-green-400">{formatEuro(bet.winAmount, locale)}</span>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 })
 
-const TxMiniCard = memo(function TxMiniCard({ tx }: { tx: Transaction }) {
+const TxMiniCard = memo(function TxMiniCard({ tx, index }: { tx: Transaction; index: number }) {
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <div className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+    <motion.div
+      className="flex items-center justify-between gap-3 rounded border border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.18, delay: index * 0.04 }}
+    >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{tx.id.slice(0, 8)}&hellip;</span>
@@ -153,7 +178,7 @@ const TxMiniCard = memo(function TxMiniCard({ tx }: { tx: Transaction }) {
         <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{tx.createdAt.toLocaleDateString(locale)}</span>
       </div>
       <span className="shrink-0 text-sm font-medium text-gray-900 dark:text-gray-100">{formatEuro(tx.amount, locale)}</span>
-    </div>
+    </motion.div>
   )
 })
 
@@ -162,11 +187,24 @@ function BalanceCard() {
   const user = useAuth((s) => s.user)
   const { t } = useTranslation('common')
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
+
+  const springBalance = useSpring(balance, {
+    damping: shouldReduceMotion ? 100 : 25,
+    stiffness: shouldReduceMotion ? 10000 : 200,
+  })
+  const formattedBalance = useTransform(springBalance, (v) => formatEuro(v, locale))
+
+  useEffect(() => {
+    springBalance.set(balance)
+  }, [balance, locale, springBalance])
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('balance')}</p>
-      <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{formatEuro(balance, locale)}</p>
+      <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+        <motion.span>{formattedBalance}</motion.span>
+      </p>
       {user && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('welcomeBack', { name: user.name })}</p>}
     </div>
   )
@@ -220,15 +258,15 @@ function RecentBets() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.data.map((bet) => (
-                    <BetRow key={bet.id} bet={bet} />
+                  {data?.data.map((bet, index) => (
+                    <BetRow key={bet.id} bet={bet} index={index} />
                   ))}
                 </tbody>
               </table>
             </div>
             <div className="flex flex-col gap-1 md:hidden">
-              {data?.data.map((bet) => (
-                <BetMiniCard key={bet.id} bet={bet} />
+              {data?.data.map((bet, index) => (
+                <BetMiniCard key={bet.id} bet={bet} index={index} />
               ))}
             </div>
           </>
@@ -283,15 +321,15 @@ function RecentTransactions() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.data.map((tx) => (
-                    <TxRow key={tx.id} tx={tx} />
+                  {data?.data.map((tx, index) => (
+                    <TxRow key={tx.id} tx={tx} index={index} />
                   ))}
                 </tbody>
               </table>
             </div>
             <div className="flex flex-col gap-1 md:hidden">
-              {data?.data.map((tx) => (
-                <TxMiniCard key={tx.id} tx={tx} />
+              {data?.data.map((tx, index) => (
+                <TxMiniCard key={tx.id} tx={tx} index={index} />
               ))}
             </div>
           </>

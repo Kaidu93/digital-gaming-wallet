@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { z } from 'zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,7 @@ export function PlaceBetForm() {
   const queryClient = useQueryClient();
   const { t } = useTranslation('bets');
   const locale = useLocale();
+  const shouldReduceMotion = useReducedMotion();
 
   const [amount, setAmount] = useState('');
   const [error, setError] = useState<string | undefined>();
@@ -111,21 +113,38 @@ export function PlaceBetForm() {
             {apiError}
           </p>
         )}
-        {result && (
-          <div
-            role="status"
-            className={cn(
-              'rounded-md px-4 py-3 text-center text-sm font-medium',
-              result.outcome === 'win'
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                : 'bg-red-100 text-gray-600 dark:bg-red-900/20 dark:text-gray-400',
-            )}
-          >
-            {result.outcome === 'win'
-              ? t('youWon', { amount: formatEuro(result.winAmount, locale) })
-              : t('betterLuckNextTime')}
-          </div>
-        )}
+        <AnimatePresence>
+          {result && (
+            <motion.div
+              key={result.outcome}
+              role="status"
+              initial={shouldReduceMotion ? { opacity: 0 } : result.outcome === 'win' ? { opacity: 0, scale: 0.95 } : { opacity: 0 }}
+              animate={
+                shouldReduceMotion
+                  ? { opacity: 1 }
+                  : result.outcome === 'win'
+                  ? { opacity: 1, scale: 1 }
+                  : { opacity: 1, x: [0, -5, 5, -3, 3, 0] }
+              }
+              exit={{ opacity: 0 }}
+              transition={
+                result.outcome === 'win' && !shouldReduceMotion
+                  ? { type: 'spring', stiffness: 280, damping: 22 }
+                  : { duration: shouldReduceMotion ? 0.1 : 0.35 }
+              }
+              className={cn(
+                'rounded-md px-4 py-3 text-center text-sm font-medium',
+                result.outcome === 'win'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                  : 'bg-red-100 text-gray-600 dark:bg-red-900/20 dark:text-gray-400',
+              )}
+            >
+              {result.outcome === 'win'
+                ? t('youWon', { amount: formatEuro(result.winAmount, locale) })
+                : t('betterLuckNextTime')}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </form>
   );

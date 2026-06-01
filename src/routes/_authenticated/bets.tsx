@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { memo, useEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { cancelBet, getBets } from '@/features/bets/api'
@@ -179,10 +180,16 @@ function CancelBetButton({ bet }: { bet: Bet }) {
   )
 }
 
-const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
+const BetRow = memo(function BetRow({ bet, index }: { bet: Bet; index: number }) {
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+    <motion.tr
+      className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.18, delay: index * 0.04 }}
+    >
       <td className="px-4 py-3">
         <div className="flex items-center">
           <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
@@ -204,15 +211,21 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
       <td className="px-4 py-3 text-right">
         <CancelBetButton bet={bet} />
       </td>
-    </tr>
+    </motion.tr>
   )
 })
 
-const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
+const BetCard = memo(function BetCard({ bet, index }: { bet: Bet; index: number }) {
   const { t } = useTranslation('bets')
   const locale = useLocale()
+  const shouldReduceMotion = useReducedMotion()
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+    <motion.div
+      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2, delay: index * 0.05 }}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center">
           <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{bet.id.slice(0, 8)}&hellip;</span>
@@ -232,7 +245,7 @@ const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
       <div className="mt-3 flex justify-end">
         <CancelBetButton bet={bet} />
       </div>
-    </div>
+    </motion.div>
   )
 })
 
@@ -438,16 +451,16 @@ function BetsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data?.data.map((bet) => (
-                  <BetRow key={bet.id} bet={bet} />
+                {data?.data.map((bet, index) => (
+                  <BetRow key={bet.id} bet={bet} index={index} />
                 ))}
               </tbody>
             </table>
           </div>
 
           <div className="flex flex-col gap-3 md:hidden">
-            {data?.data.map((bet) => (
-              <BetCard key={bet.id} bet={bet} />
+            {data?.data.map((bet, index) => (
+              <BetCard key={bet.id} bet={bet} index={index} />
             ))}
           </div>
 

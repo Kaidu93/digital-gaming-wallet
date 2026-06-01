@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Outlet, useRouter } from '@tanstack/react-router'
+import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } from 'framer-motion'
+import { Outlet, useRouter, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/stores/auth'
 import { formatEuro } from '@/lib/format'
@@ -56,6 +57,18 @@ export default function AppShell() {
   const router = useRouter()
   const { t } = useTranslation('common')
   const locale = useLocale()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const shouldReduceMotion = useReducedMotion()
+
+  const springBalance = useSpring(balance, {
+    damping: shouldReduceMotion ? 100 : 25,
+    stiffness: shouldReduceMotion ? 10000 : 200,
+  })
+  const formattedBalance = useTransform(springBalance, (v) => formatEuro(v, locale))
+
+  useEffect(() => {
+    springBalance.set(balance)
+  }, [balance, locale, springBalance])
 
   useEffect(() => {
     if (!token) {
@@ -76,7 +89,7 @@ export default function AppShell() {
           <div className="flex shrink-0 items-center gap-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100" aria-live="polite" aria-atomic="true">
               <span className="hidden sm:inline">{t('balancePrefix')}</span>
-              {formatEuro(balance, locale)}
+              <motion.span>{formattedBalance}</motion.span>
             </span>
             <LanguageSwitcher />
             <ThemeToggle />
@@ -87,7 +100,17 @@ export default function AppShell() {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+            transition={{ duration: shouldReduceMotion ? 0.1 : 0.18 }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   )
