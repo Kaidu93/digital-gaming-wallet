@@ -133,6 +133,12 @@
 
 ### Phase 5 — Betting
 
+#### Task 5.2 — Place-bet form
+
+- **What:** Created [src/features/bets/components/PlaceBetForm.tsx](src/features/bets/components/PlaceBetForm.tsx) with an amount input, inline validation, and an inline win/loss result banner below the submit button.
+- **Why:** The core betting UX. The form is a standalone component (not a page) so task 5.5 can embed it in the dashboard alongside other widgets. An inline banner was chosen over a floating notification because the user is actively watching the form when the result arrives — the banner is more visible and stays until the next bet or input change.
+- **How:** The Zod schema is built inline on each submit — `placeBetSchema.extend({ amount: z.coerce.number().min(1).max(balance) })` — so the `max` always reflects the current balance without stale closure capture. Outcome is inferred from `winAmount !== null && winAmount > 0` per the API contract (no `status` field in the place-bet response). On success, `setBalance(response.balance)` updates the header instantly; `queryClient.invalidateQueries` ensures `my-bets` and `my-transactions` lists refetch on next render.
+
 #### Task 5.1 — Bets Zod schemas + API
 
 - **What:** Created [src/features/bets/schemas.ts](src/features/bets/schemas.ts) (`betStatusSchema`, `betSchema`, `betsResponseSchema`, `placeBetSchema`, `placeBetResponseSchema`, `cancelBetResponseSchema`, `betFilterSchema` + inferred types) and [src/features/bets/api.ts](src/features/bets/api.ts) exporting `placeBet`, `getBets`, `cancelBet`.
