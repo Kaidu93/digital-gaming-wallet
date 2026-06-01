@@ -139,6 +139,12 @@
 - **Why:** The core betting UX. The form is a standalone component (not a page) so task 5.5 can embed it in the dashboard alongside other widgets. An inline banner was chosen over a floating notification because the user is actively watching the form when the result arrives — the banner is more visible and stays until the next bet or input change.
 - **How:** The Zod schema is built inline on each submit — `placeBetSchema.extend({ amount: z.coerce.number().min(1).max(balance) })` — so the `max` always reflects the current balance without stale closure capture. Outcome is inferred from `winAmount !== null && winAmount > 0` per the API contract (no `status` field in the place-bet response). On success, `setBalance(response.balance)` updates the header instantly; `queryClient.invalidateQueries` ensures `my-bets` and `my-transactions` lists refetch on next render.
 
+#### Task 5.3 — Bets list page
+
+- **What:** Created [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx) — the `/bets` authenticated route with URL-bound status + ID filters, TanStack Query fetch, desktop table + mobile card list, pagination, and a Cancel button stub per row.
+- **Why:** The bets list is a core requirement from [docs/prd.md](docs/prd.md). URL-bound filters mirror the transactions page pattern so deep links and back/forward restore the exact view. The Cancel button is rendered here with `disabled={status === 'canceled'}` per the spec; the confirmation dialog and API call land in task 5.4.
+- **How:** A route-local `betSearchSchema` uses `z.coerce.number().default(...)` for page/limit (URL params arrive as strings) and `betStatusSchema.optional()` for the status filter. The query key includes the full search object so any filter change triggers a refetch. `StatusBadge` maps `win → green`, `lost → red`, `canceled → gray`. Prize column renders `formatEuro(winAmount)` when non-null, otherwise `—`.
+
 #### Task 5.1 — Bets Zod schemas + API
 
 - **What:** Created [src/features/bets/schemas.ts](src/features/bets/schemas.ts) (`betStatusSchema`, `betSchema`, `betsResponseSchema`, `placeBetSchema`, `placeBetResponseSchema`, `cancelBetResponseSchema`, `betFilterSchema` + inferred types) and [src/features/bets/api.ts](src/features/bets/api.ts) exporting `placeBet`, `getBets`, `cancelBet`.

@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
+import { Route as AuthenticatedBetsRouteImport } from './routes/_authenticated/bets'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -40,16 +41,23 @@ const AuthenticatedTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedBetsRoute = AuthenticatedBetsRouteImport.update({
+  id: '/bets',
+  path: '/bets',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/bets': typeof AuthenticatedBetsRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/bets': typeof AuthenticatedBetsRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -58,19 +66,21 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_authenticated/bets': typeof AuthenticatedBetsRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/transactions'
+  fullPaths: '/' | '/login' | '/register' | '/bets' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/transactions' | '/'
+  to: '/login' | '/register' | '/bets' | '/transactions' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/_authenticated/bets'
     | '/_authenticated/transactions'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -118,15 +128,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bets': {
+      id: '/_authenticated/bets'
+      path: '/bets'
+      fullPath: '/bets'
+      preLoaderRoute: typeof AuthenticatedBetsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedBetsRoute: typeof AuthenticatedBetsRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedBetsRoute: AuthenticatedBetsRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
