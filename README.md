@@ -220,3 +220,17 @@
 - **Bet-result reveal:** The result banner in `PlaceBetForm` is wrapped in `AnimatePresence`. Win plays a spring scale-in; loss plays a horizontal keyframe shake (`x: [0, -5, 5, -3, 3, 0]`).
 - **List item enters:** All table rows (`motion.tr`) and mobile cards (`motion.div`) in bets, transactions, and dashboard summaries animate in with a staggered fade + slide, driven by an `index` prop passed from the parent map.
 - **Reduced motion:** Every animation checks `useReducedMotion()`. When true: transforms are removed and duration collapses to 100ms, preserving state visibility without motion.
+
+#### Task 7.4 — Real-time balance updates via WebSockets (not implemented)
+
+This bonus task was not implemented because it requires server-side WebSocket support that the provided mock API does not have. The mock API is a plain Express application with no `ws` dependency and no HTTP upgrade handler — any `new WebSocket('ws://localhost:3000')` attempt from the browser will fail at the handshake. Since modifying the mock API was outside the scope of the assignment, a functional WebSocket integration was not possible.
+
+Balance updates remain accurate through the existing mechanism: every `POST /bet` and `DELETE /my-bet/:id` response includes the updated `balance`, which is written directly to the Zustand auth store and reflected in the header immediately. Lists are kept fresh by `refetchOnWindowFocus: true` on the shared `QueryClient`.
+
+**What the mock API would need:**
+
+The `api.js` file would need the `ws` npm package installed, the `app.listen()` call replaced with an explicit `http.createServer(app)` so the WebSocket server can share the same port, and a `WebSocketServer` attached to that server. After each `POST /bet` and `DELETE /my-bet/:id` handler updates `player.balance`, a broadcast would send `JSON.stringify({ balance: player.balance })` to all connected clients. No other routes would need changes.
+
+**What the frontend would need:**
+
+A `useBalanceSocket` hook in [src/hooks/useBalanceSocket.ts](src/hooks/useBalanceSocket.ts) would open a `WebSocket` to `env.WS_URL` when the variable is non-empty and a token is present. On each incoming message it would parse the JSON, read the `balance` field, call `setBalance` on the auth store, and invalidate the `my-bets` and `my-transactions` queries so the lists refresh. The hook would close the socket on unmount. It would be mounted once inside `<AppShell />`. The only required config change would be setting `VITE_WS_URL=ws://localhost:3000` in `.env.local` — no application code changes beyond the hook and its mount point.
