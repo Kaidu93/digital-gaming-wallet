@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { memo, useState } from 'react'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { getTransactions } from '@/features/wallet/api'
 import { transactionTypeSchema, type Transaction } from '@/features/wallet/schemas'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { formatEuro } from '@/lib/format'
+import { useLocale } from '@/i18n'
 import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
 
@@ -26,12 +28,6 @@ export const Route = createFileRoute('/_authenticated/transactions')({
   component: TransactionsPage,
 })
 
-const TYPE_LABELS: Record<string, string> = {
-  bet: 'Bet',
-  win: 'Prize',
-  cancel: 'Cancelled',
-}
-
 const TYPE_BADGE_CLASSES: Record<string, string> = {
   bet: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   win: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -39,6 +35,7 @@ const TYPE_BADGE_CLASSES: Record<string, string> = {
 }
 
 function TypeBadge({ type }: { type: string }) {
+  const { t } = useTranslation('wallet')
   return (
     <span
       className={cn(
@@ -46,13 +43,14 @@ function TypeBadge({ type }: { type: string }) {
         TYPE_BADGE_CLASSES[type] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
       )}
     >
-      {TYPE_LABELS[type] ?? type}
+      {t(`type_${type}`, type)}
     </span>
   )
 }
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
+  const { t } = useTranslation('common')
 
   function handleCopy() {
     navigator.clipboard.writeText(text).then(() => {
@@ -65,8 +63,8 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      aria-label={copied ? 'Copied' : 'Copy ID'}
-      title={copied ? 'Copied!' : 'Copy ID'}
+      aria-label={copied ? t('copied') : t('copyId')}
+      title={copied ? t('copiedTitle') : t('copyId')}
       className="ml-1 rounded p-0.5 text-gray-400 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-500 dark:hover:text-gray-300"
     >
       {copied ? (
@@ -84,6 +82,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 const TransactionRow = memo(function TransactionRow({ tx }: { tx: Transaction }) {
+  const locale = useLocale()
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <td className="px-4 py-3">
@@ -93,19 +92,20 @@ const TransactionRow = memo(function TransactionRow({ tx }: { tx: Transaction })
         </div>
       </td>
       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-        {tx.createdAt.toLocaleString('en-IE')}
+        {tx.createdAt.toLocaleString(locale)}
       </td>
       <td className="px-4 py-3">
         <TypeBadge type={tx.type} />
       </td>
       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
-        {formatEuro(tx.amount)}
+        {formatEuro(tx.amount, locale)}
       </td>
     </tr>
   )
 })
 
 const TransactionCard = memo(function TransactionCard({ tx }: { tx: Transaction }) {
+  const locale = useLocale()
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
@@ -116,8 +116,8 @@ const TransactionCard = memo(function TransactionCard({ tx }: { tx: Transaction 
         <TypeBadge type={tx.type} />
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-500 dark:text-gray-400">{tx.createdAt.toLocaleString('en-IE')}</span>
-        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatEuro(tx.amount)}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{tx.createdAt.toLocaleString(locale)}</span>
+        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatEuro(tx.amount, locale)}</span>
       </div>
     </div>
   )
@@ -167,10 +167,11 @@ function SkeletonRows() {
 }
 
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
+  const { t } = useTranslation(['wallet', 'common'])
   if (hasFilters) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-900">
-        <p className="text-sm text-gray-500 dark:text-gray-400">No transactions match your filters.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('wallet:noTransactionsMatchFilters')}</p>
       </div>
     )
   }
@@ -194,14 +195,14 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
         </svg>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">No transactions yet</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Place a bet to generate your first transaction.</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('wallet:noTransactionsYet')}</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('wallet:noTransactionsYetCta')}</p>
       </div>
       <Link
         to="/"
         className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
-        Place a bet
+        {t('common:placeABet')}
       </Link>
     </div>
   )
@@ -211,6 +212,7 @@ function TransactionsPage() {
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const [idInput, setIdInput] = useState(search.id ?? '')
+  const { t } = useTranslation(['wallet', 'common'])
 
   function updateSearch(updates: Partial<TransactionSearch>) {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
@@ -239,29 +241,29 @@ function TransactionsPage() {
   function getErrorMessage() {
     if (isApiError(error)) return error.message
     if (error instanceof Error) return error.message
-    return 'Failed to load transactions.'
+    return t('wallet:failedToLoad')
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Transactions</h1>
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t('wallet:transactions')}</h1>
         <Link
           to="/"
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-          aria-label="Back to dashboard"
+          aria-label={t('common:backToDashboard')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
-          Dashboard
+          {t('common:dashboard')}
         </Link>
       </div>
 
       <div className="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex flex-col gap-1">
           <label htmlFor="type-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Type
+            {t('common:type')}
           </label>
           <select
             id="type-filter"
@@ -269,27 +271,27 @@ function TransactionsPage() {
             onChange={handleTypeChange}
             className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           >
-            <option value="">All types</option>
-            <option value="bet">Bet</option>
-            <option value="win">Prize</option>
-            <option value="cancel">Cancelled</option>
+            <option value="">{t('wallet:allTypes')}</option>
+            <option value="bet">{t('wallet:type_bet')}</option>
+            <option value="win">{t('wallet:type_win')}</option>
+            <option value="cancel">{t('wallet:type_cancel')}</option>
           </select>
         </div>
 
         <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex w-full flex-col gap-1 sm:w-auto">
           <label htmlFor="id-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Transaction ID
+            {t('wallet:transactionId')}
           </label>
           <div className="flex gap-2">
             <Input
               id="id-filter"
               value={idInput}
               onChange={(e) => setIdInput(e.target.value)}
-              placeholder="Filter by ID..."
+              placeholder={t('common:filterById')}
               className="min-w-0 flex-1 sm:w-52 sm:flex-none"
             />
             <Button type="submit" variant="secondary">
-              Search
+              {t('common:search')}
             </Button>
           </div>
         </form>
@@ -307,10 +309,10 @@ function TransactionsPage() {
             <table className="w-full text-left">
               <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-4 py-3">ID</th>
-                  <th scope="col" className="px-4 py-3">Date</th>
-                  <th scope="col" className="px-4 py-3">Type</th>
-                  <th scope="col" className="px-4 py-3 text-right">Amount</th>
+                  <th scope="col" className="px-4 py-3">{t('common:id')}</th>
+                  <th scope="col" className="px-4 py-3">{t('common:date')}</th>
+                  <th scope="col" className="px-4 py-3">{t('common:type')}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t('common:amount')}</th>
                 </tr>
               </thead>
               <tbody>

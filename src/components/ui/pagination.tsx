@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -15,15 +16,16 @@ export function Pagination({ total, page, limit, onChange, className }: Paginati
   const totalPages = Math.max(1, Math.ceil(total / limit))
   const isFirst = page <= 1
   const isLast = page >= totalPages
+  const { t } = useTranslation('common')
 
   return (
     <nav
       className={cn('flex flex-wrap items-center justify-between gap-3 py-4', className)}
-      aria-label="Pagination"
+      aria-label={t('pageOf', { page, total: totalPages })}
     >
       <div className="flex items-center gap-2">
         <label htmlFor="page-size-select" className="text-sm text-gray-500 dark:text-gray-400">
-          Rows per page
+          {t('rowsPerPage')}
         </label>
         <select
           id="page-size-select"
@@ -44,22 +46,22 @@ export function Pagination({ total, page, limit, onChange, className }: Paginati
           variant="secondary"
           disabled={isFirst}
           onClick={() => onChange({ page: page - 1, limit })}
-          aria-label="Previous page"
+          aria-label={t('previousPage')}
         >
-          &larr; Prev
+          {t('prev')}
         </Button>
 
         <span className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite" aria-atomic="true">
-          Page {page} of {totalPages}
+          {t('pageOf', { page, total: totalPages })}
         </span>
 
         <Button
           variant="secondary"
           disabled={isLast}
           onClick={() => onChange({ page: page + 1, limit })}
-          aria-label="Next page"
+          aria-label={t('nextPage')}
         >
-          Next &rarr;
+          {t('next')}
         </Button>
       </div>
     </nav>

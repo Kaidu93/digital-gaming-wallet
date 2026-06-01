@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 interface QueryErrorCardProps {
@@ -7,6 +8,7 @@ interface QueryErrorCardProps {
 }
 
 export function QueryErrorCard({ message, onRetry, className }: QueryErrorCardProps) {
+  const { t } = useTranslation('common')
   return (
     <div
       className={cn(
@@ -37,7 +39,7 @@ export function QueryErrorCard({ message, onRetry, className }: QueryErrorCardPr
           onClick={onRetry}
           className="inline-flex items-center rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700"
         >
-          Try again
+          {t('tryAgain')}
         </button>
       )}
     </div>

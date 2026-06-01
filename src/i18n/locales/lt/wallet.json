@@ -1,0 +1,13 @@
+{
+  "transactions": "Operacijos",
+  "transactionId": "Operacijos ID",
+  "allTypes": "Visi tipai",
+  "type_bet": "Statymas",
+  "type_win": "Laimėjimas",
+  "type_cancel": "Atšaukta",
+  "recentTransactions": "Paskutinės operacijos",
+  "noTransactionsYet": "Operacijų dar nėra",
+  "noTransactionsYetCta": "Atlikite statymą, kad pamatytumėte pirmą operaciją.",
+  "noTransactionsMatchFilters": "Nėra operacijų pagal filtrus.",
+  "failedToLoad": "Nepavyko įkelti operacijų."
+}

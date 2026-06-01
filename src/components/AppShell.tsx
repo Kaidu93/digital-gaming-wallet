@@ -1,20 +1,23 @@
 import { useEffect } from 'react'
 import { Outlet, useRouter } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/stores/auth'
 import { formatEuro } from '@/lib/format'
+import { useLocale } from '@/i18n'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/components/ThemeProvider'
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useTranslation('common')
   const isDark = theme === 'dark'
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      aria-label={isDark ? t('switchToLight') : t('switchToDark')}
+      title={isDark ? t('switchToLight') : t('switchToDark')}
       className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
     >
       {isDark ? (
@@ -30,12 +33,29 @@ function ThemeToggle() {
   )
 }
 
+function LanguageSwitcher() {
+  const { i18n } = useTranslation()
+  const nextLang = i18n.language === 'lt' ? 'en' : 'lt'
+
+  return (
+    <button
+      type="button"
+      onClick={() => i18n.changeLanguage(nextLang)}
+      className="rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+    >
+      {nextLang}
+    </button>
+  )
+}
+
 export default function AppShell() {
   const user = useAuth((s) => s.user)
   const balance = useAuth((s) => s.balance)
   const token = useAuth((s) => s.token)
   const logout = useAuth((s) => s.logout)
   const router = useRouter()
+  const { t } = useTranslation('common')
+  const locale = useLocale()
 
   useEffect(() => {
     if (!token) {
@@ -55,12 +75,13 @@ export default function AppShell() {
           <span className="min-w-0 truncate text-sm font-medium text-gray-700 dark:text-gray-300">{user?.name}</span>
           <div className="flex shrink-0 items-center gap-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100" aria-live="polite" aria-atomic="true">
-              <span className="hidden sm:inline">Balance: </span>
-              {formatEuro(balance)}
+              <span className="hidden sm:inline">{t('balancePrefix')}</span>
+              {formatEuro(balance, locale)}
             </span>
+            <LanguageSwitcher />
             <ThemeToggle />
             <Button variant="ghost" onClick={handleLogout}>
-              Logout
+              {t('logout')}
             </Button>
           </div>
         </div>

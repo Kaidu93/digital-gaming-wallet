@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { memo, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { cancelBet, getBets } from '@/features/bets/api'
 import { betStatusSchema, type Bet, type BetStatus } from '@/features/bets/schemas'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { QueryErrorCard } from '@/components/ui/QueryErrorCard'
 import { formatEuro } from '@/lib/format'
+import { useLocale } from '@/i18n'
 import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
 import { useAuth } from '@/stores/auth'
@@ -27,12 +29,6 @@ export const Route = createFileRoute('/_authenticated/bets')({
   component: BetsPage,
 })
 
-const STATUS_LABELS: Record<BetStatus, string> = {
-  win: 'Win',
-  lost: 'Lost',
-  canceled: 'Cancelled',
-}
-
 const STATUS_BADGE_CLASSES: Record<BetStatus, string> = {
   win: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   lost: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
@@ -40,6 +36,7 @@ const STATUS_BADGE_CLASSES: Record<BetStatus, string> = {
 }
 
 function StatusBadge({ status }: { status: BetStatus }) {
+  const { t } = useTranslation('bets')
   return (
     <span
       className={cn(
@@ -47,13 +44,14 @@ function StatusBadge({ status }: { status: BetStatus }) {
         STATUS_BADGE_CLASSES[status],
       )}
     >
-      {STATUS_LABELS[status]}
+      {t(`status_${status}`)}
     </span>
   )
 }
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
+  const { t } = useTranslation('common')
 
   function handleCopy() {
     navigator.clipboard.writeText(text).then(() => {
@@ -66,8 +64,8 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      aria-label={copied ? 'Copied' : 'Copy ID'}
-      title={copied ? 'Copied!' : 'Copy ID'}
+      aria-label={copied ? t('copied') : t('copyId')}
+      title={copied ? t('copiedTitle') : t('copyId')}
       className="ml-1 rounded p-0.5 text-gray-400 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-500 dark:hover:text-gray-300"
     >
       {copied ? (
@@ -90,6 +88,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
   const [cancelError, setCancelError] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const setBalance = useAuth((s) => s.setBalance)
+  const { t } = useTranslation('bets')
 
   useEffect(() => {
     if (isOpen) {
@@ -119,7 +118,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
       } else if (err instanceof Error) {
         setCancelError(err.message)
       } else {
-        setCancelError('Failed to cancel bet.')
+        setCancelError(t('failedToCancel'))
       }
     },
   })
@@ -135,7 +134,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
         onClick={() => setIsOpen(true)}
         className="text-xs"
       >
-        Cancel
+        {t('cancelAction')}
       </Button>
 
       <dialog
@@ -146,10 +145,10 @@ function CancelBetButton({ bet }: { bet: Bet }) {
         onClick={(e) => { if (e.target === dialogRef.current) closeDialog() }}
         className="m-auto w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 text-left shadow-xl backdrop:bg-black/40 dark:border-gray-700 dark:bg-gray-900"
       >
-        <h2 id="cancel-dialog-title" className="text-base font-semibold text-gray-900 dark:text-gray-100">Cancel bet?</h2>
+        <h2 id="cancel-dialog-title" className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('cancelTitle')}</h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          Cancel bet <span className="font-mono">{bet.id.slice(0, 8)}&hellip;</span>?
-          {bet.status === 'lost' && ' Your stake will be refunded.'}
+          {t('cancelDescription', { id: `${bet.id.slice(0, 8)}…` })}
+          {bet.status === 'lost' && t('stakeRefunded')}
         </p>
         {cancelError && (
           <p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -164,7 +163,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
             disabled={isPending}
             autoFocus
           >
-            Keep bet
+            {t('keepBet')}
           </Button>
           <Button
             type="button"
@@ -172,7 +171,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
             onClick={() => mutate()}
             disabled={isPending}
           >
-            {isPending ? 'Cancelling…' : 'Confirm cancel'}
+            {isPending ? t('cancelling') : t('confirmCancel')}
           </Button>
         </div>
       </dialog>
@@ -181,6 +180,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
 }
 
 const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
+  const locale = useLocale()
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
       <td className="px-4 py-3">
@@ -190,16 +190,16 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
         </div>
       </td>
       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-        {bet.createdAt.toLocaleString('en-IE')}
+        {bet.createdAt.toLocaleString(locale)}
       </td>
       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
-        {formatEuro(bet.amount)}
+        {formatEuro(bet.amount, locale)}
       </td>
       <td className="px-4 py-3">
         <StatusBadge status={bet.status} />
       </td>
       <td className="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">
-        {bet.winAmount !== null ? formatEuro(bet.winAmount) : '—'}
+        {bet.winAmount !== null ? formatEuro(bet.winAmount, locale) : '—'}
       </td>
       <td className="px-4 py-3 text-right">
         <CancelBetButton bet={bet} />
@@ -209,6 +209,8 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
 })
 
 const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
+  const { t } = useTranslation('bets')
+  const locale = useLocale()
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
@@ -219,12 +221,12 @@ const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
         <StatusBadge status={bet.status} />
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-500 dark:text-gray-400">{bet.createdAt.toLocaleString('en-IE')}</span>
-        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatEuro(bet.amount)}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{bet.createdAt.toLocaleString(locale)}</span>
+        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatEuro(bet.amount, locale)}</span>
       </div>
       {bet.winAmount !== null && (
         <div className="mt-1 text-right text-xs text-green-600 dark:text-green-400">
-          Prize: {formatEuro(bet.winAmount)}
+          {t('prizeBadge', { amount: formatEuro(bet.winAmount, locale) })}
         </div>
       )}
       <div className="mt-3 flex justify-end">
@@ -285,10 +287,11 @@ function SkeletonRows() {
 }
 
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
+  const { t } = useTranslation(['bets', 'common'])
   if (hasFilters) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-900">
-        <p className="text-sm text-gray-500 dark:text-gray-400">No bets match your filters.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('bets:noBetsMatchFilters')}</p>
       </div>
     )
   }
@@ -312,14 +315,14 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
         </svg>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">No bets yet</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Place your first bet to get started.</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('bets:noBetsYet')}</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('bets:noBetsYetCta')}</p>
       </div>
       <Link
         to="/"
         className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
-        Place a bet
+        {t('common:placeABet')}
       </Link>
     </div>
   )
@@ -329,6 +332,7 @@ function BetsPage() {
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const [idInput, setIdInput] = useState(search.id ?? '')
+  const { t } = useTranslation(['bets', 'common'])
 
   function updateSearch(updates: Partial<BetSearch>) {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
@@ -357,29 +361,29 @@ function BetsPage() {
   function getErrorMessage() {
     if (isApiError(error)) return error.message
     if (error instanceof Error) return error.message
-    return 'Failed to load bets.'
+    return t('bets:failedToLoad')
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Bets</h1>
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t('bets:bets')}</h1>
         <Link
           to="/"
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-          aria-label="Back to dashboard"
+          aria-label={t('common:backToDashboard')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
-          Dashboard
+          {t('common:dashboard')}
         </Link>
       </div>
 
       <div className="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex flex-col gap-1">
           <label htmlFor="status-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Status
+            {t('common:status')}
           </label>
           <select
             id="status-filter"
@@ -387,27 +391,27 @@ function BetsPage() {
             onChange={handleStatusChange}
             className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           >
-            <option value="">All statuses</option>
-            <option value="win">Win</option>
-            <option value="lost">Lost</option>
-            <option value="canceled">Cancelled</option>
+            <option value="">{t('bets:allStatuses')}</option>
+            <option value="win">{t('bets:status_win')}</option>
+            <option value="lost">{t('bets:status_lost')}</option>
+            <option value="canceled">{t('bets:status_canceled')}</option>
           </select>
         </div>
 
         <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex w-full flex-col gap-1 sm:w-auto">
           <label htmlFor="id-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Bet ID
+            {t('bets:betId')}
           </label>
           <div className="flex gap-2">
             <Input
               id="id-filter"
               value={idInput}
               onChange={(e) => setIdInput(e.target.value)}
-              placeholder="Filter by ID..."
+              placeholder={t('common:filterById')}
               className="min-w-0 flex-1 sm:w-52 sm:flex-none"
             />
             <Button type="submit" variant="secondary">
-              Search
+              {t('common:search')}
             </Button>
           </div>
         </form>
@@ -425,12 +429,12 @@ function BetsPage() {
             <table className="w-full text-left">
               <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-4 py-3">ID</th>
-                  <th scope="col" className="px-4 py-3">Date</th>
-                  <th scope="col" className="px-4 py-3 text-right">Amount</th>
-                  <th scope="col" className="px-4 py-3">Status</th>
-                  <th scope="col" className="px-4 py-3 text-right">Prize</th>
-                  <th scope="col" className="px-4 py-3 text-right">Actions</th>
+                  <th scope="col" className="px-4 py-3">{t('common:id')}</th>
+                  <th scope="col" className="px-4 py-3">{t('common:date')}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t('common:amount')}</th>
+                  <th scope="col" className="px-4 py-3">{t('common:status')}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t('common:prize')}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t('common:actions')}</th>
                 </tr>
               </thead>
               <tbody>

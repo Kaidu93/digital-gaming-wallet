@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { login, register } from '@/features/auth/api';
 import { registerSchema } from '@/features/auth/schemas';
 import { useAuth } from '@/stores/auth';
@@ -20,6 +21,7 @@ export const Route = createFileRoute('/register')({
 // This is a known TanStack Router constraint, not an oversight.
 function RegisterPage() {
   const router = useRouter();
+  const { t } = useTranslation('auth');
   const [fields, setFields] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [fieldErrors, setFieldErrors] = useState<{
     name?: string[];
@@ -29,6 +31,20 @@ function RegisterPage() {
   }>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const VALIDATION_KEYS: Record<string, string> = {
+    'Name is required': t('validation.nameRequired'),
+    'Invalid email address': t('validation.invalidEmail'),
+    'Password is required': t('validation.passwordRequired'),
+    'Password must be at least 8 characters': t('validation.passwordMinLength'),
+    'Please confirm your password': t('validation.confirmPasswordRequired'),
+    'Passwords do not match': t('validation.passwordsMustMatch'),
+  };
+
+  function fieldError(msgs: string[] | undefined): string | undefined {
+    const msg = msgs?.[0];
+    return msg ? (VALIDATION_KEYS[msg] ?? msg) : undefined;
+  }
 
   function setField(key: keyof typeof fields) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -58,7 +74,7 @@ function RegisterPage() {
         router.navigate({ to: '/login', search: { redirect: '/', prefillEmail: result.data.email } });
       }
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Registration failed');
+      setApiError(err instanceof Error ? err.message : t('registrationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +83,7 @@ function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">Create account</h1>
+        <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">{t('createAccount')}</h1>
 
         {apiError && (
           <div
@@ -81,7 +97,7 @@ function RegisterPage() {
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="name" required>
-              Name
+              {t('name')}
             </Label>
             <Input
               id="name"
@@ -89,13 +105,13 @@ function RegisterPage() {
               autoComplete="name"
               value={fields.name}
               onChange={setField('name')}
-              error={fieldErrors.name?.[0]}
+              error={fieldError(fieldErrors.name)}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email" required>
-              Email
+              {t('email')}
             </Label>
             <Input
               id="email"
@@ -103,13 +119,13 @@ function RegisterPage() {
               autoComplete="email"
               value={fields.email}
               onChange={setField('email')}
-              error={fieldErrors.email?.[0]}
+              error={fieldError(fieldErrors.email)}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="password" required>
-              Password
+              {t('password')}
             </Label>
             <Input
               id="password"
@@ -117,13 +133,13 @@ function RegisterPage() {
               autoComplete="new-password"
               value={fields.password}
               onChange={setField('password')}
-              error={fieldErrors.password?.[0]}
+              error={fieldError(fieldErrors.password)}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="confirmPassword" required>
-              Confirm password
+              {t('confirmPassword')}
             </Label>
             <Input
               id="confirmPassword"
@@ -131,19 +147,19 @@ function RegisterPage() {
               autoComplete="new-password"
               value={fields.confirmPassword}
               onChange={setField('confirmPassword')}
-              error={fieldErrors.confirmPassword?.[0]}
+              error={fieldError(fieldErrors.confirmPassword)}
             />
           </div>
 
           <Button type="submit" disabled={isLoading} className="mt-2 w-full">
-            {isLoading ? 'Creating account...' : 'Create account'}
+            {isLoading ? t('creatingAccount') : t('createAccount')}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{' '}
+          {t('alreadyHaveAccount')}{' '}
           <Link to="/login" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-            Sign in
+            {t('signIn')}
           </Link>
         </p>
       </div>

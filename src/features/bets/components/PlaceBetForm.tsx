@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { z } from 'zod';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/stores/auth';
 import { placeBet } from '@/features/bets/api';
 import { placeBetSchema } from '@/features/bets/schemas';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatEuro } from '@/lib/format';
+import { useLocale } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 type BetResult = { outcome: 'win'; winAmount: number } | { outcome: 'loss' };
@@ -17,6 +19,8 @@ export function PlaceBetForm() {
   const balance = useAuth((s) => s.balance);
   const setBalance = useAuth((s) => s.setBalance);
   const queryClient = useQueryClient();
+  const { t } = useTranslation('bets');
+  const locale = useLocale();
 
   const [amount, setAmount] = useState('');
   const [error, setError] = useState<string | undefined>();
@@ -32,8 +36,8 @@ export function PlaceBetForm() {
     const schema = placeBetSchema.extend({
       amount: z.coerce
         .number()
-        .min(1, 'Minimum bet is €1')
-        .max(balance, `Cannot exceed your balance of ${formatEuro(balance)}`),
+        .min(1, t('minimumBet'))
+        .max(balance, t('exceedsBalance', { amount: formatEuro(balance, locale) })),
     });
 
     const parsed = schema.safeParse({ amount });
@@ -60,7 +64,7 @@ export function PlaceBetForm() {
       }
     } catch (err: unknown) {
       if (isApiError(err) && err.status === 401) return;
-      const message = isApiError(err) ? err.message : err instanceof Error ? err.message : 'Failed to place bet';
+      const message = isApiError(err) ? err.message : err instanceof Error ? err.message : t('failedToPlaceBet');
       setApiError(message);
     } finally {
       setIsSubmitting(false);
@@ -72,10 +76,10 @@ export function PlaceBetForm() {
       <div className="flex flex-col gap-3">
         <div>
           <Label htmlFor="bet-amount" required>
-            Bet amount
+            {t('betAmount')}
           </Label>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Available: {formatEuro(balance)}
+            {t('available', { amount: formatEuro(balance, locale) })}
           </p>
         </div>
         <Input
@@ -100,7 +104,7 @@ export function PlaceBetForm() {
           disabled={isSubmitting || balance <= 0}
           className="w-full"
         >
-          {isSubmitting ? 'Placing bet…' : 'Place bet'}
+          {isSubmitting ? t('placingBet') : t('placeBet')}
         </Button>
         {apiError && (
           <p className="text-sm text-red-600 dark:text-red-400" role="alert">
@@ -118,8 +122,8 @@ export function PlaceBetForm() {
             )}
           >
             {result.outcome === 'win'
-              ? `You won ${formatEuro(result.winAmount)}!`
-              : 'Better luck next time!'}
+              ? t('youWon', { amount: formatEuro(result.winAmount, locale) })
+              : t('betterLuckNextTime')}
           </div>
         )}
       </div>

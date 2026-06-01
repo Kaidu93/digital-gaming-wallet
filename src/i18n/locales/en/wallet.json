@@ -1,0 +1,13 @@
+{
+  "transactions": "Transactions",
+  "transactionId": "Transaction ID",
+  "allTypes": "All types",
+  "type_bet": "Bet",
+  "type_win": "Prize",
+  "type_cancel": "Cancelled",
+  "recentTransactions": "Recent transactions",
+  "noTransactionsYet": "No transactions yet",
+  "noTransactionsYetCta": "Place a bet to generate your first transaction.",
+  "noTransactionsMatchFilters": "No transactions match your filters.",
+  "failedToLoad": "Failed to load transactions."
+}
