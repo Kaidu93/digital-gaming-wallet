@@ -145,6 +145,12 @@
 - **Why:** The bets list is a core requirement from [docs/prd.md](docs/prd.md). URL-bound filters mirror the transactions page pattern so deep links and back/forward restore the exact view. The Cancel button is rendered here with `disabled={status === 'canceled'}` per the spec; the confirmation dialog and API call land in task 5.4.
 - **How:** A route-local `betSearchSchema` uses `z.coerce.number().default(...)` for page/limit (URL params arrive as strings) and `betStatusSchema.optional()` for the status filter. The query key includes the full search object so any filter change triggers a refetch. `StatusBadge` maps `win → green`, `lost → red`, `canceled → gray`. Prize column renders `formatEuro(winAmount)` when non-null, otherwise `—`.
 
+#### Task 5.4 — Cancel bet action + confirmation dialog
+
+- **What:** Added `CancelBetButton` component in [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx) — wraps a native `<dialog>` (controlled via `useRef` + `showModal()`/`close()`), a `useMutation` cancel call, and inline error rendering inside the dialog.
+- **Why:** Destructive actions require a confirmation step per the UX brief. The `<dialog>` element is chosen per the implementation plan — it provides native modal semantics (focus trap, Esc-to-close, `backdrop::` styling) with no third-party dependency.
+- **How:** `isOpen` drives `dialogRef.current.showModal()` / `.close()` via `useEffect`. The native `cancel` event (fired by Esc) syncs `isOpen` back to `false` so state stays consistent. On confirm, `cancelBet(id)` is called; on success `setBalance(response.balance)` updates the header immediately and `queryClient.invalidateQueries` on `my-bets` + `my-transactions` keeps lists fresh. API errors render inside the dialog as `<p role="alert">` — the dialog stays open so the user can dismiss or retry. Cancel button is `disabled` + `aria-disabled` only when `status === 'canceled'`; `'lost'` bets remain cancellable per the spec note (API refunds the stake).
+
 #### Task 5.1 — Bets Zod schemas + API
 
 - **What:** Created [src/features/bets/schemas.ts](src/features/bets/schemas.ts) (`betStatusSchema`, `betSchema`, `betsResponseSchema`, `placeBetSchema`, `placeBetResponseSchema`, `cancelBetResponseSchema`, `betFilterSchema` + inferred types) and [src/features/bets/api.ts](src/features/bets/api.ts) exporting `placeBet`, `getBets`, `cancelBet`.

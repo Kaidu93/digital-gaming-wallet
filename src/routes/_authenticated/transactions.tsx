@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { memo, useEffect, useState } from 'react'
+import { memo, useState } from 'react'
 import { z } from 'zod'
 import { getTransactions } from '@/features/wallet/api'
 import { transactionTypeSchema, type Transaction } from '@/features/wallet/schemas'
@@ -158,10 +158,6 @@ function TransactionsPage() {
   const navigate = useNavigate({ from: Route.fullPath })
   const [idInput, setIdInput] = useState(search.id ?? '')
 
-  useEffect(() => {
-    setIdInput(search.id ?? '')
-  }, [search.id])
-
   function updateSearch(updates: Partial<TransactionSearch>) {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
   }
@@ -212,7 +208,7 @@ function TransactionsPage() {
           </select>
         </div>
 
-        <form onSubmit={handleIdSubmit} className="flex flex-col gap-1">
+        <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex flex-col gap-1">
           <label htmlFor="id-filter" className="text-xs font-medium text-gray-500">
             Transaction ID
           </label>

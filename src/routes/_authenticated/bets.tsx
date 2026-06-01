@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { memo, useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { memo, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
-import { getBets } from '@/features/bets/api'
+import { cancelBet, getBets } from '@/features/bets/api'
 import { betStatusSchema, type Bet, type BetStatus } from '@/features/bets/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { Pagination } from '@/components/ui/pagination'
 import { formatEuro } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { isApiError } from '@/lib/api'
+import { useAuth } from '@/stores/auth'
 
 const betSearchSchema = z.object({
   status: betStatusSchema.optional(),
@@ -82,6 +83,97 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
+function CancelBetButton({ bet }: { bet: Bet }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+  const setBalance = useAuth((s) => s.setBalance)
+
+  useEffect(() => {
+    if (isOpen) {
+      dialogRef.current?.showModal()
+    } else {
+      dialogRef.current?.close()
+    }
+  }, [isOpen])
+
+  function closeDialog() {
+    setIsOpen(false)
+    setCancelError(null)
+  }
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => cancelBet(bet.id),
+    onSuccess: (data) => {
+      setBalance(data.balance)
+      queryClient.invalidateQueries({ queryKey: ['my-bets'] })
+      queryClient.invalidateQueries({ queryKey: ['my-transactions'] })
+      closeDialog()
+    },
+    onError: (err) => {
+      if (isApiError(err)) {
+        setCancelError(err.message)
+      } else if (err instanceof Error) {
+        setCancelError(err.message)
+      } else {
+        setCancelError('Failed to cancel bet.')
+      }
+    },
+  })
+
+  const isDisabled = bet.status === 'canceled'
+
+  return (
+    <>
+      <Button
+        variant="destructive"
+        disabled={isDisabled}
+        aria-disabled={isDisabled}
+        onClick={() => setIsOpen(true)}
+        className="text-xs"
+      >
+        Cancel
+      </Button>
+
+      <dialog
+        ref={dialogRef}
+        onCancel={() => setIsOpen(false)}
+        className="w-full max-w-sm rounded-lg border border-gray-200 p-6 shadow-xl backdrop:bg-black/40"
+      >
+        <h2 className="text-base font-semibold text-gray-900">Cancel bet?</h2>
+        <p className="mt-2 text-sm text-gray-600">
+          Cancel bet <span className="font-mono">{bet.id.slice(0, 8)}&hellip;</span>?
+          {bet.status === 'lost' && ' Your stake will be refunded.'}
+        </p>
+        {cancelError && (
+          <p className="mt-3 text-sm text-red-600" role="alert">
+            {cancelError}
+          </p>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setIsOpen(false)}
+            disabled={isPending}
+          >
+            Keep bet
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => mutate()}
+            disabled={isPending}
+          >
+            {isPending ? 'Cancelling…' : 'Confirm cancel'}
+          </Button>
+        </div>
+      </dialog>
+    </>
+  )
+}
+
 const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
@@ -104,15 +196,7 @@ const BetRow = memo(function BetRow({ bet }: { bet: Bet }) {
         {bet.winAmount !== null ? formatEuro(bet.winAmount) : '—'}
       </td>
       <td className="px-4 py-3 text-right">
-        <Button
-          variant="destructive"
-          disabled={bet.status === 'canceled'}
-          aria-disabled={bet.status === 'canceled'}
-          onClick={undefined}
-          className="text-xs"
-        >
-          Cancel
-        </Button>
+        <CancelBetButton bet={bet} />
       </td>
     </tr>
   )
@@ -138,15 +222,7 @@ const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
         </div>
       )}
       <div className="mt-3 flex justify-end">
-        <Button
-          variant="destructive"
-          disabled={bet.status === 'canceled'}
-          aria-disabled={bet.status === 'canceled'}
-          onClick={undefined}
-          className="text-xs"
-        >
-          Cancel
-        </Button>
+        <CancelBetButton bet={bet} />
       </div>
     </div>
   )
@@ -188,10 +264,6 @@ function BetsPage() {
   const search = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const [idInput, setIdInput] = useState(search.id ?? '')
-
-  useEffect(() => {
-    setIdInput(search.id ?? '')
-  }, [search.id])
 
   function updateSearch(updates: Partial<BetSearch>) {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
@@ -243,7 +315,7 @@ function BetsPage() {
           </select>
         </div>
 
-        <form onSubmit={handleIdSubmit} className="flex flex-col gap-1">
+        <form key={search.id ?? ''} onSubmit={handleIdSubmit} className="flex flex-col gap-1">
           <label htmlFor="id-filter" className="text-xs font-medium text-gray-500">
             Bet ID
           </label>
