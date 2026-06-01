@@ -28,7 +28,7 @@ export default function AppShell() {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
           <span className="min-w-0 truncate text-sm font-medium text-gray-700">{user?.name}</span>
           <div className="flex shrink-0 items-center gap-3">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-gray-900" aria-live="polite" aria-atomic="true">
               <span className="hidden sm:inline">Balance: </span>
               {formatEuro(balance)}
             </span>

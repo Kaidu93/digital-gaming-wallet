@@ -116,7 +116,7 @@ const TransactionCard = memo(function TransactionCard({ tx }: { tx: Transaction 
         <TypeBadge type={tx.type} />
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-400">{tx.createdAt.toLocaleString('en-IE')}</span>
+        <span className="text-xs text-gray-500">{tx.createdAt.toLocaleString('en-IE')}</span>
         <span className="text-sm font-semibold text-gray-900">{formatEuro(tx.amount)}</span>
       </div>
     </div>

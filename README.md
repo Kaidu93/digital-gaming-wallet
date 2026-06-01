@@ -177,6 +177,15 @@
 - **Why:** Slow networks must never show a blank screen ([docs/prd.md](docs/prd.md)); new accounts must see actionable guidance instead of empty tables. The unified `QueryErrorCard` removes three copies of the same error-display pattern and adds a retry action the per-page inline versions lacked.
 - **How:** The skeleton uses `hidden md:block` / `md:hidden` breakpoints matching the real table/card toggle so the loading state is visually consistent with the loaded state. `hasFilters` is computed from the search params (`status !== undefined || !!id` for bets; `type !== undefined || !!id` for transactions) to choose the right empty state variant. `refetch` from TanStack Query v5 is assignable to `() => void` (optional args, return value ignored) so it passes directly as `onRetry`.
 
+#### Task 6.4 — A11y pass
+
+- **What:** Applied accessibility fixes across [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx), [src/components/AppShell.tsx](src/components/AppShell.tsx), [src/routes/_authenticated/transactions.tsx](src/routes/_authenticated/transactions.tsx), and [src/routes/_authenticated/index.tsx](src/routes/_authenticated/index.tsx).
+- **Why:** Lighthouse a11y score target is ≥ 95 on every route. The two main failure categories were missing ARIA attributes on the cancel-bet dialog and color-contrast violations from `text-gray-400` (#9ca3af, 2.54:1 contrast) used for visible text content on white backgrounds — below WCAG AA's 4.5:1 threshold for small text.
+- **How:**
+  - **Dialog:** Added `aria-modal="true"` and `aria-labelledby` (pointing to a new `id` on the heading) to the `<dialog>` element in `CancelBetButton`. Added `autoFocus` to "Keep bet" so the initial focus lands inside the dialog immediately on open. Native `<dialog>` + `showModal()` already provides focus trapping; these attributes make the modal semantics visible to screen readers.
+  - **Balance live region:** Added `aria-live="polite" aria-atomic="true"` to the balance span in `AppShell` so screen readers announce balance changes after bets and cancellations without interrupting the user.
+  - **Color contrast:** Replaced `text-gray-400` with `text-gray-500` (#6b7280, 4.77:1) in all visible text: date labels in mobile cards (bets and transactions), "Balance" label in the dashboard balance card, and summary table header rows in `index.tsx`.
+
 #### Task 6.2 — Responsive layout pass
 
 - **What:** Responsive fixes across [src/components/AppShell.tsx](src/components/AppShell.tsx), [src/routes/_authenticated/index.tsx](src/routes/_authenticated/index.tsx), [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx), and [src/routes/_authenticated/transactions.tsx](src/routes/_authenticated/transactions.tsx).

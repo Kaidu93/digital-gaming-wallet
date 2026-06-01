@@ -135,7 +135,7 @@ const BetMiniCard = memo(function BetMiniCard({ bet }: { bet: Bet }) {
           <span className="font-mono text-xs text-gray-500">{bet.id.slice(0, 8)}&hellip;</span>
           <StatusBadge status={bet.status} />
         </div>
-        <span className="mt-0.5 block text-xs text-gray-400">{bet.createdAt.toLocaleDateString('en-IE')}</span>
+        <span className="mt-0.5 block text-xs text-gray-500">{bet.createdAt.toLocaleDateString('en-IE')}</span>
       </div>
       <div className="shrink-0 text-right">
         <span className="block text-sm font-medium text-gray-900">{formatEuro(bet.amount)}</span>
@@ -155,7 +155,7 @@ const TxMiniCard = memo(function TxMiniCard({ tx }: { tx: Transaction }) {
           <span className="font-mono text-xs text-gray-500">{tx.id.slice(0, 8)}&hellip;</span>
           <TypeBadge type={tx.type} />
         </div>
-        <span className="mt-0.5 block text-xs text-gray-400">{tx.createdAt.toLocaleDateString('en-IE')}</span>
+        <span className="mt-0.5 block text-xs text-gray-500">{tx.createdAt.toLocaleDateString('en-IE')}</span>
       </div>
       <span className="shrink-0 text-sm font-medium text-gray-900">{formatEuro(tx.amount)}</span>
     </div>
@@ -168,7 +168,7 @@ function BalanceCard() {
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Balance</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Balance</p>
       <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900">{formatEuro(balance)}</p>
       {user && <p className="mt-1 text-sm text-gray-500">Welcome back, {user.name}!</p>}
     </div>
@@ -212,7 +212,7 @@ function RecentBets() {
           <>
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   <tr>
                     <th scope="col" className="px-3 pb-2">ID</th>
                     <th scope="col" className="px-3 pb-2">Date</th>
@@ -275,7 +275,7 @@ function RecentTransactions() {
           <>
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   <tr>
                     <th scope="col" className="px-3 pb-2">ID</th>
                     <th scope="col" className="px-3 pb-2">Date</th>

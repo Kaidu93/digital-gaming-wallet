@@ -140,11 +140,13 @@ function CancelBetButton({ bet }: { bet: Bet }) {
 
       <dialog
         ref={dialogRef}
+        aria-modal="true"
+        aria-labelledby="cancel-dialog-title"
         onCancel={() => setIsOpen(false)}
         onClick={(e) => { if (e.target === dialogRef.current) closeDialog() }}
         className="m-auto w-full max-w-sm rounded-lg border border-gray-200 p-6 text-left shadow-xl backdrop:bg-black/40"
       >
-        <h2 className="text-base font-semibold text-gray-900">Cancel bet?</h2>
+        <h2 id="cancel-dialog-title" className="text-base font-semibold text-gray-900">Cancel bet?</h2>
         <p className="mt-2 text-sm text-gray-600">
           Cancel bet <span className="font-mono">{bet.id.slice(0, 8)}&hellip;</span>?
           {bet.status === 'lost' && ' Your stake will be refunded.'}
@@ -160,6 +162,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
             variant="secondary"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
+            autoFocus
           >
             Keep bet
           </Button>
@@ -216,7 +219,7 @@ const BetCard = memo(function BetCard({ bet }: { bet: Bet }) {
         <StatusBadge status={bet.status} />
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-400">{bet.createdAt.toLocaleString('en-IE')}</span>
+        <span className="text-xs text-gray-500">{bet.createdAt.toLocaleString('en-IE')}</span>
         <span className="text-sm font-semibold text-gray-900">{formatEuro(bet.amount)}</span>
       </div>
       {bet.winAmount !== null && (
