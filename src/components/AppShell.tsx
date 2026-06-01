@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, useRouter } from '@tanstack/react-router'
 import { useAuth } from '@/stores/auth'
 import { formatEuro } from '@/lib/format'
@@ -6,8 +7,15 @@ import { Button } from '@/components/ui/button'
 export default function AppShell() {
   const user = useAuth((s) => s.user)
   const balance = useAuth((s) => s.balance)
+  const token = useAuth((s) => s.token)
   const logout = useAuth((s) => s.logout)
   const router = useRouter()
+
+  useEffect(() => {
+    if (!token) {
+      router.navigate({ to: '/login' })
+    }
+  }, [token, router])
 
   function handleLogout() {
     logout()

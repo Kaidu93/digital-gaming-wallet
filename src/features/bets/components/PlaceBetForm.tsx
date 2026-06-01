@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/stores/auth';
 import { placeBet } from '@/features/bets/api';
 import { placeBetSchema } from '@/features/bets/schemas';
+import { isApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -58,7 +59,8 @@ export function PlaceBetForm() {
         setResult({ outcome: 'loss' });
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to place bet';
+      if (isApiError(err) && err.status === 401) return;
+      const message = isApiError(err) ? err.message : err instanceof Error ? err.message : 'Failed to place bet';
       setApiError(message);
     } finally {
       setIsSubmitting(false);
@@ -92,11 +94,6 @@ export function PlaceBetForm() {
           error={error}
           disabled={isSubmitting}
         />
-        {apiError && (
-          <p className="text-sm text-red-600" role="alert">
-            {apiError}
-          </p>
-        )}
         <Button
           type="submit"
           variant="primary"
@@ -105,6 +102,11 @@ export function PlaceBetForm() {
         >
           {isSubmitting ? 'Placing bet…' : 'Place bet'}
         </Button>
+        {apiError && (
+          <p className="text-sm text-red-600" role="alert">
+            {apiError}
+          </p>
+        )}
         {result && (
           <div
             role="status"

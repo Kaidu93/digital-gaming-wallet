@@ -163,3 +163,11 @@
 - **Why:** The landing page after login, as required by [docs/prd.md](docs/prd.md). Combining balance, betting, and recent activity in one view gives users a complete picture without navigating away.
 - **How:** `RecentBets` and `RecentTransactions` query with `queryKey: ['my-bets', { page: 1, limit: 5 }]` / `['my-transactions', { page: 1, limit: 5 }]`. Because `PlaceBetForm` calls `queryClient.invalidateQueries({ queryKey: ['my-bets'] })` on success (partial key match), both summary queries are automatically invalidated and refetched after every bet — no wiring needed. Layout is a two-column grid on desktop (`md:grid-cols-2` for the top row, `lg:grid-cols-2` for summaries) and stacked on mobile.
 
+### Phase 6 — Polish & Validation
+
+#### Task 6.1 — Global API error surface
+
+- **What:** Audited all mutation surfaces and applied consistent inline error rendering. The two surfaces needing changes were [src/features/bets/components/PlaceBetForm.tsx](src/features/bets/components/PlaceBetForm.tsx) and `CancelBetButton` in [src/routes/_authenticated/bets.tsx](src/routes/_authenticated/bets.tsx).
+- **Why:** The spec requires every mutation surface to show API errors inline as `<p role="alert">` — either above the relevant form or below the relevant button. More importantly, 401 responses must not render a stray error message: `api.ts` calls `logout()` on 401, which causes the `_authenticated` guard to redirect, so surfacing the error string too would flash a confusing red message before the redirect clears the page.
+- **How:** Added an `isApiError(err) && err.status === 401` guard to both handlers — early-return without setting error state on 401s. Moved the `apiError` `<p role="alert">` in `PlaceBetForm` from between the input and the submit button to below the submit button (satisfying "below the relevant button"). `CancelBetButton`'s error already rendered inside the dialog above the action buttons — retained that position as the natural placement for dialog-level feedback. Login and register forms deliberately do NOT filter 401 — a 401 from `POST /login` means invalid credentials and must be shown.
+

@@ -112,6 +112,7 @@ function CancelBetButton({ bet }: { bet: Bet }) {
       closeDialog()
     },
     onError: (err) => {
+      if (isApiError(err) && err.status === 401) return;
       if (isApiError(err)) {
         setCancelError(err.message)
       } else if (err instanceof Error) {
